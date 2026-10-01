@@ -7,8 +7,8 @@ export default function RootLayout() {
       <Stack.Screen name="login" options={{ title: 'Login' }} />
       <Stack.Screen name="signup" options={{ title: 'Sign Up' }} />
       <Stack.Screen name="explore" options={{ title: 'Explore' }} />
-      <Stack.Screen name="profile" options={{ title: 'Profile' }} />
-      <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+      {/* <Stack.Screen name="profile" options={{ title: 'Profile' }} />
+      <Stack.Screen name="settings" options={{ title: 'Settings' }} /> */}
     </Stack>
   );
 }

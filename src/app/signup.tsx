@@ -327,7 +327,7 @@ export default function Signup() {
               shadowRadius: 8,
               elevation: 4,
             }}
-            onPress={() => router.replace('/')}
+            onPress={() => router.replace('/dashboard')}
           >
             <Text
               style={{
