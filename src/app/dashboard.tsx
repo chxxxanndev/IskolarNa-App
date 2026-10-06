@@ -29,9 +29,10 @@ const COLLEGES = [
 ];
 
 const ACTIONS = [
-  { label: 'Course Match', icon: 'compass-outline' },
-  { label: 'Scholarships', icon: 'ribbon-outline' },
-  { label: 'Compare', icon: 'git-compare-outline' },
+  //{ label: 'Course Match', icon: 'compass-outline', route: null },
+  { label: 'Scholarships', icon: 'ribbon-outline', route: '/scholarships' },
+  { label: 'Colleges', icon: 'school-outline', route: '/colleges' },
+  { label: 'Compare', icon: 'git-compare-outline', route: null },
 ] as const;
 
 const card = {
@@ -120,6 +121,8 @@ function DevModal({ visible, onClose }: { visible: boolean; onClose: () => void 
 export default function Dashboard() {
   const [devOpen, setDevOpen] = useState(false);
   const showDev = () => setDevOpen(true);
+  const goScholarships = () => router.push('/scholarships');
+  const goColleges = () => router.push('/colleges');
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
@@ -199,12 +202,12 @@ export default function Dashboard() {
           </View>
         </TouchableOpacity>
 
-        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 26 }}>
+        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 26 }}>
           {ACTIONS.map((a) => (
             <TouchableOpacity
               key={a.label}
               activeOpacity={0.8}
-              onPress={showDev}
+              onPress={() => (a.route ? router.push(a.route) : showDev())}
               style={{ ...card, flex: 1, alignItems: 'center', paddingVertical: 16, paddingHorizontal: 8 }}
             >
               <View
@@ -252,7 +255,7 @@ export default function Dashboard() {
           ))}
         </View>
 
-        <SectionHeader title="Closing soon" onSeeAll={showDev} />
+        <SectionHeader title="Closing soon" onSeeAll={goScholarships} />
         <View style={{ ...card, paddingVertical: 6, marginBottom: 26 }}>
           {SCHOLARSHIPS.map((s, i) => {
             const urgent = s.daysLeft <= 7;
@@ -260,7 +263,7 @@ export default function Dashboard() {
               <TouchableOpacity
                 key={s.id}
                 activeOpacity={0.7}
-                onPress={showDev}
+                onPress={goScholarships}
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -290,7 +293,7 @@ export default function Dashboard() {
           })}
         </View>
 
-        <SectionHeader title="Colleges in Zamboanga del Norte" onSeeAll={showDev} />
+        <SectionHeader title="Colleges in Zamboanga del Norte" onSeeAll={goColleges} />
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -301,7 +304,7 @@ export default function Dashboard() {
             <TouchableOpacity
               key={c.id}
               activeOpacity={0.8}
-              onPress={showDev}
+              onPress={goColleges}
               style={{ ...card, width: 190 }}
             >
               <View
