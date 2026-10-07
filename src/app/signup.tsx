@@ -1,5 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
+
+import { useAppState } from '@/context/app-state';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -18,6 +20,19 @@ export default function Signup() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState('');
+  const { signIn } = useAppState();
+
+  const handleSignUp = () => {
+    const trimmed = email.trim();
+    if (name.trim().length < 2) return setError('Enter your full name.');
+    if (!/^\S+@\S+\.\S+$/.test(trimmed)) return setError('Enter a valid email address.');
+    if (password.length < 8) return setError('Password must be at least 8 characters.');
+    if (password !== confirmPassword) return setError('Passwords do not match.');
+    setError('');
+    signIn(name.trim().split(' ')[0], trimmed);
+    router.replace('/dashboard');
+  };
 
   return (
     <KeyboardAvoidingView
@@ -309,6 +324,11 @@ export default function Signup() {
           </View>
 
           {/* Create Account */}
+          {error ? (
+            <Text style={{ color: '#B91C1C', fontSize: 13, fontWeight: '600', marginBottom: 12, textAlign: 'center' }}>
+              {error}
+            </Text>
+          ) : null}
           <TouchableOpacity
             activeOpacity={0.8}
             style={{
@@ -327,7 +347,7 @@ export default function Signup() {
               shadowRadius: 8,
               elevation: 4,
             }}
-            onPress={() => router.replace('/dashboard')}
+            onPress={handleSignUp}
           >
             <Text
               style={{

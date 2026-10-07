@@ -1,4 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
+import type React from "react";
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export const card = {
@@ -150,5 +151,87 @@ export function SaveButton({ saved, onPress }: { saved: boolean; onPress: () => 
         color={saved ? '#2563EB' : '#94A3B8'}
       />
     </TouchableOpacity>
+  );
+}
+
+export function ProgressBar({ value, color = '#2563EB' }: { value: number; color?: string }) {
+  return (
+    <View style={{ flex: 1, height: 8, borderRadius: 4, backgroundColor: '#E2E8F0' }}>
+      <View
+        style={{
+          width: `${Math.max(0, Math.min(100, value))}%`,
+          height: 8,
+          borderRadius: 4,
+          backgroundColor: color,
+        }}
+      />
+    </View>
+  );
+}
+
+export function Button({
+  label,
+  onPress,
+  icon,
+  variant = 'primary',
+  disabled = false,
+  flex = false,
+}: {
+  label: string;
+  onPress: () => void;
+  icon?: React.ComponentProps<typeof Ionicons>['name'];
+  variant?: 'primary' | 'secondary' | 'danger';
+  disabled?: boolean;
+  flex?: boolean;
+}) {
+  const styles = {
+    primary: { bg: '#2563EB', fg: '#FFFFFF', border: '#2563EB' },
+    secondary: { bg: '#FFFFFF', fg: '#2563EB', border: '#BFDBFE' },
+    danger: { bg: '#FFFFFF', fg: '#B91C1C', border: '#FECACA' },
+  }[variant];
+  return (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      disabled={disabled}
+      onPress={onPress}
+      style={{
+        flex: flex ? 1 : undefined,
+        height: 50,
+        borderRadius: 14,
+        backgroundColor: styles.bg,
+        borderWidth: 1,
+        borderColor: styles.border,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 8,
+        opacity: disabled ? 0.5 : 1,
+      }}
+    >
+      {icon && <Ionicons name={icon} size={18} color={styles.fg} />}
+      <Text style={{ color: styles.fg, fontSize: 15, fontWeight: '700' }}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
+
+export function BulletList({
+  title,
+  items,
+  icon = 'checkmark-circle-outline',
+}: {
+  title: string;
+  items: string[];
+  icon?: React.ComponentProps<typeof Ionicons>['name'];
+}) {
+  return (
+    <View>
+      <Text style={{ fontSize: 15, fontWeight: '700', color: '#0F172A', marginBottom: 10 }}>{title}</Text>
+      {items.map((it) => (
+        <View key={it} style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 8, gap: 8 }}>
+          <Ionicons name={icon} size={16} color="#2563EB" style={{ marginTop: 1 }} />
+          <Text style={{ flex: 1, fontSize: 13, color: '#475569', lineHeight: 19 }}>{it}</Text>
+        </View>
+      ))}
+    </View>
   );
 }

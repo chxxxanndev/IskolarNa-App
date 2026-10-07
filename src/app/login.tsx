@@ -1,5 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
+
+import { useAppState } from '@/context/app-state';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -14,6 +16,19 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const { signIn } = useAppState();
+
+  const handleSignIn = () => {
+    const trimmed = email.trim();
+    if (!/^\S+@\S+\.\S+$/.test(trimmed)) return setError('Enter a valid email address.');
+    if (password.length < 6) return setError('Password must be at least 6 characters.');
+    setError('');
+    // Frontend only: derive a display name from the email until the backend is ready.
+    const local = trimmed.split('@')[0].split(/[._-]/)[0];
+    signIn(local.charAt(0).toUpperCase() + local.slice(1), trimmed);
+    router.replace('/dashboard');
+  };
 
   return (
     <KeyboardAvoidingView
@@ -230,7 +245,7 @@ export default function Login() {
 
           {/* Forgot Password */}
           <TouchableOpacity
-            onPress={() => router.push('./forgot-password')}
+            onPress={() => router.push('/forgot-password')}
             style={{
               alignSelf: 'flex-end',
               marginBottom: 24,
@@ -248,6 +263,11 @@ export default function Login() {
           </TouchableOpacity>
 
           {/* Sign In Button */}
+          {error ? (
+            <Text style={{ color: '#B91C1C', fontSize: 13, fontWeight: '600', marginBottom: 12, textAlign: 'center' }}>
+              {error}
+            </Text>
+          ) : null}
           <TouchableOpacity
             activeOpacity={0.8}
             style={{
@@ -266,7 +286,7 @@ export default function Login() {
               shadowRadius: 8,
               elevation: 4,
             }}
-            onPress={() => router.replace('/dashboard')}
+            onPress={handleSignIn}
           >
             <Text
               style={{
@@ -298,7 +318,7 @@ export default function Login() {
           </Text>
 
           <TouchableOpacity
-            onPress={() => router.push('./signup')}
+            onPress={() => router.push('/signup')}
           >
             <Text
               style={{

@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useAppState } from '@/context/app-state';
 import { EmptyState, FilterChips, SaveButton, SearchBar, Tag, card } from '@/components/list-ui';
 import { SCHOLARSHIPS, type Scholarship } from '@/data/scholarships';
 
@@ -12,33 +14,10 @@ type Filter = (typeof FILTERS)[number];
 const URGENT_DAYS = 7;
 const CLOSING_SOON_DAYS = 14;
 
-function Checklist({ title, items, icon }: { title: string; items: string[]; icon: 'checkmark-circle-outline' | 'document-text-outline' }) {
-  return (
-    <View style={{ marginBottom: 14 }}>
-      <Text style={{ fontSize: 12, fontWeight: '700', color: '#0F172A', marginBottom: 8 }}>{title}</Text>
-      {items.map((it) => (
-        <View key={it} style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 6, gap: 8 }}>
-          <Ionicons name={icon} size={16} color="#2563EB" style={{ marginTop: 1 }} />
-          <Text style={{ flex: 1, fontSize: 13, color: '#475569', lineHeight: 18 }}>{it}</Text>
-        </View>
-      ))}
-    </View>
-  );
-}
-
 export default function Scholarships() {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('All');
-  const [openId, setOpenId] = useState<string | null>(null);
-  const [saved, setSaved] = useState<Set<string>>(new Set());
-
-  const toggleSaved = (id: string) =>
-    setSaved((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const { savedScholarships, toggleScholarship } = useAppState();
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -47,7 +26,7 @@ export default function Scholarships() {
         if (s.level !== filter) return false;
       }
       if (filter === 'Closing soon' && s.daysLeft > CLOSING_SOON_DAYS) return false;
-      if (filter === 'Saved' && !saved.has(s.id)) return false;
+      if (filter === 'Saved' && !savedScholarships.includes(s.id)) return false;
       if (!q) return true;
       return (
         s.name.toLowerCase().includes(q) ||
@@ -55,15 +34,14 @@ export default function Scholarships() {
         s.benefit.toLowerCase().includes(q)
       );
     }).sort((a, b) => a.daysLeft - b.daysLeft);
-  }, [query, filter, saved]);
+  }, [query, filter, savedScholarships]);
 
   const renderItem = ({ item }: { item: Scholarship }) => {
-    const open = openId === item.id;
     const urgent = item.daysLeft <= URGENT_DAYS;
     return (
       <TouchableOpacity
         activeOpacity={0.9}
-        onPress={() => setOpenId(open ? null : item.id)}
+        onPress={() => router.push(`/scholarship/${item.id}`)}
         style={{ ...card, marginBottom: 14 }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
@@ -86,7 +64,7 @@ export default function Scholarships() {
             <Text style={{ fontSize: 12, color: '#64748B', marginTop: 3 }}>{item.grantor}</Text>
           </View>
 
-          <SaveButton saved={saved.has(item.id)} onPress={() => toggleSaved(item.id)} />
+          <SaveButton saved={savedScholarships.includes(item.id)} onPress={() => toggleScholarship(item.id)} />
         </View>
 
         <Text style={{ fontSize: 13, color: '#475569', lineHeight: 19, marginTop: 12 }}>{item.benefit}</Text>
@@ -95,18 +73,9 @@ export default function Scholarships() {
           <Tag label={`${item.daysLeft} days left`} tone={urgent ? 'red' : 'blue'} />
           <Tag label={item.level} tone="slate" />
           <View style={{ flex: 1 }} />
-          <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color="#94A3B8" />
+          <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
         </View>
 
-        {open && (
-          <View style={{ marginTop: 16, paddingTop: 16, borderTopWidth: 1, borderTopColor: '#EEF2F7' }}>
-            <Text style={{ fontSize: 13, color: '#475569', lineHeight: 19, marginBottom: 14 }}>
-              {item.about}
-            </Text>
-            <Checklist title="Who can apply" items={item.eligibility} icon="checkmark-circle-outline" />
-            <Checklist title="What to prepare" items={item.requirements} icon="document-text-outline" />
-          </View>
-        )}
       </TouchableOpacity>
     );
   };

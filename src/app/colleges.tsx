@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useAppState } from '@/context/app-state';
 import { EmptyState, FilterChips, SaveButton, SearchBar, Tag, card } from '@/components/list-ui';
 import { COLLEGES, type College } from '@/data/colleges';
 
@@ -12,16 +14,7 @@ type Filter = (typeof FILTERS)[number];
 export default function Colleges() {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('All');
-  const [openId, setOpenId] = useState<string | null>(null);
-  const [saved, setSaved] = useState<Set<string>>(new Set());
-
-  const toggleSaved = (id: string) =>
-    setSaved((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const { savedColleges, toggleCollege } = useAppState();
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -29,7 +22,7 @@ export default function Colleges() {
       if (filter === 'Public' || filter === 'Private') {
         if (c.type !== filter) return false;
       }
-      if (filter === 'Saved' && !saved.has(c.id)) return false;
+      if (filter === 'Saved' && !savedColleges.includes(c.id)) return false;
       if (!q) return true;
       return (
         c.name.toLowerCase().includes(q) ||
@@ -38,14 +31,13 @@ export default function Colleges() {
         c.programs.some((p) => p.toLowerCase().includes(q))
       );
     });
-  }, [query, filter, saved]);
+  }, [query, filter, savedColleges]);
 
   const renderItem = ({ item }: { item: College }) => {
-    const open = openId === item.id;
     return (
       <TouchableOpacity
         activeOpacity={0.9}
-        onPress={() => setOpenId(open ? null : item.id)}
+        onPress={() => router.push(`/college/${item.id}`)}
         style={{ ...card, marginBottom: 14 }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -71,31 +63,16 @@ export default function Colleges() {
             </View>
           </View>
 
-          <SaveButton saved={saved.has(item.id)} onPress={() => toggleSaved(item.id)} />
+          <SaveButton saved={savedColleges.includes(item.id)} onPress={() => toggleCollege(item.id)} />
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 }}>
           <Tag label={item.type} tone={item.type === 'Public' ? 'blue' : 'slate'} />
           <Tag label={`${item.programs.length} programs`} tone="slate" />
           <View style={{ flex: 1 }} />
-          <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color="#94A3B8" />
+          <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
         </View>
 
-        {open && (
-          <View style={{ marginTop: 16, paddingTop: 16, borderTopWidth: 1, borderTopColor: '#EEF2F7' }}>
-            <Text style={{ fontSize: 13, color: '#475569', lineHeight: 19, marginBottom: 14 }}>
-              {item.about}
-            </Text>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: '#0F172A', marginBottom: 8 }}>
-              Programs offered
-            </Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {item.programs.map((p) => (
-                <Tag key={p} label={p} />
-              ))}
-            </View>
-          </View>
-        )}
       </TouchableOpacity>
     );
   };
@@ -105,9 +82,14 @@ export default function Colleges() {
       <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12, gap: 12 }}>
         <SearchBar value={query} onChangeText={setQuery} placeholder="Search school, city, or program" />
         <FilterChips options={FILTERS} value={filter} onChange={setFilter} />
-        <Text style={{ fontSize: 12, color: '#64748B' }}>
-          {results.length} {results.length === 1 ? 'college' : 'colleges'} in Zamboanga del Norte
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Text style={{ fontSize: 12, color: '#64748B' }}>
+            {results.length} {results.length === 1 ? 'college' : 'colleges'} in Zamboanga del Norte
+          </Text>
+          <TouchableOpacity onPress={() => router.push('/compare')} hitSlop={10}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#2563EB' }}>Compare</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <FlatList
