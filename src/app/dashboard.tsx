@@ -4,6 +4,7 @@ import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ProgressBar, Tag, card } from '@/components/list-ui';
+import { MenuButton } from '@/components/sidebar';
 import { useAppState } from '@/context/app-state';
 import { COLLEGES } from '@/data/colleges';
 import { topCodes } from '@/data/riasec';
@@ -40,9 +41,17 @@ export default function Dashboard() {
       >
         {/* Header */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22 }}>
-          <View>
-            <Text style={{ fontSize: 14, color: '#64748B' }}>Welcome back,</Text>
-            <Text style={{ fontSize: 24, fontWeight: '800', color: '#1E3A8A', letterSpacing: -0.5 }}>{userName}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flexShrink: 1 }}>
+            <MenuButton boxed />
+            <View style={{ flexShrink: 1 }}>
+              <Text style={{ fontSize: 14, color: '#64748B' }}>Welcome back,</Text>
+              <Text
+                numberOfLines={1}
+                style={{ fontSize: 24, fontWeight: '800', color: '#1E3A8A', letterSpacing: -0.5 }}
+              >
+                {userName}
+              </Text>
+            </View>
           </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
@@ -135,7 +144,7 @@ export default function Dashboard() {
         </TouchableOpacity>
 
         {/* Quick actions */}
-        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 26 }}>
+        {/* <View style={{ flexDirection: 'row', gap: 10, marginBottom: 26 }}>
           {ACTIONS.map((a) => (
             <TouchableOpacity
               key={a.label}
@@ -159,7 +168,7 @@ export default function Dashboard() {
               <Text style={{ fontSize: 12, fontWeight: '600', color: '#334155' }}>{a.label}</Text>
             </TouchableOpacity>
           ))}
-        </View>
+        </View> */}
 
         {/* Interest profile */}
         <SectionHeader title="Your interest profile" onSeeAll={() => router.push('/profile')} />
