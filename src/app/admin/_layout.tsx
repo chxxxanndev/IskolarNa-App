@@ -10,7 +10,7 @@ export default function AdminLayout() {
   if (!isAdmin) return <Redirect href="/login" />;
   return (
     <View style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
-      <Stack screenOptions={{ headerShown: false, animation: 'none', contentStyle: { backgroundColor: '#F8FAFF' } }} />
+      <Stack screenOptions={{ headerShown: false, animation: 'fade', animationDuration: 220, contentStyle: { backgroundColor: '#F8FAFF' } }} />
       <AdminNav />
     </View>
   );

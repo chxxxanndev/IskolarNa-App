@@ -17,6 +17,8 @@ export default function RootLayout() {
       <View style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
         <Stack
           screenOptions={{
+            animation: 'fade', // smooth cross-fade between screens (tabs, login, detail pages)
+            animationDuration: 220,
             headerShadowVisible: false,
             headerStyle: { backgroundColor: '#F8FAFF' },
             headerTintColor: '#1E3A8A',
