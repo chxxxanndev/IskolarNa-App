@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useNavScroll } from '@/context/nav-visibility';
 import { Button, ProgressBar, Tag, card } from '@/components/list-ui';
 import { useAppState } from '@/context/app-state';
 import { collegesOffering } from '@/data/courses';
@@ -11,6 +12,7 @@ import { RIASEC_META } from '@/data/riasec';
 import { analyzeInterests, INTEREST_SUGGESTIONS, type MatchResult } from '@/lib/match';
 
 export default function CourseMatch() {
+  const nav = useNavScroll();
   const { setProfile } = useAppState();
   const [text, setText] = useState('');
   const [result, setResult] = useState<MatchResult | null>(null);
@@ -24,11 +26,11 @@ export default function CourseMatch() {
   };
 
   return (
-    <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
+    <SafeAreaView edges={['left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ padding: 20, paddingBottom: 40, gap: 16 }}
+          contentContainerStyle={{ padding: 20, paddingBottom: nav.bottomPad, gap: 16 }} {...nav.scrollProps}
           showsVerticalScrollIndicator={false}
         >
           <View style={card}>

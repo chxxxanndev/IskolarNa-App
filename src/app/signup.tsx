@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 
-import { useAppState } from '@/context/app-state';
+import { useAppState, type StudentInfo } from '@/context/app-state';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -12,11 +12,65 @@ import {
   View,
 } from 'react-native';
 
+const LEVELS = ['Grade 11', 'Grade 12', 'Graduated'] as const;
+const STRANDS = ['STEM', 'ABM', 'HUMSS', 'GAS', 'TVL', 'Other'] as const;
+const SCHOLARSHIP_NEEDS = [
+  { label: 'Yes', value: 'yes' },
+  { label: 'Not sure', value: 'maybe' },
+  { label: 'No', value: 'no' },
+] as const;
+
+/** Wrapping single-select chips. Tapping the selected chip again clears it (all of these questions are optional). */
+function Choice({
+  options,
+  value,
+  onChange,
+}: {
+  options: readonly { label: string; value: string }[];
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 18 }}>
+      {options.map((o) => {
+        const active = o.value === value;
+        return (
+          <TouchableOpacity
+            key={o.value}
+            activeOpacity={0.8}
+            onPress={() => onChange(active ? '' : o.value)}
+            accessibilityRole="button"
+            accessibilityState={{ selected: active }}
+            style={{
+              paddingHorizontal: 16,
+              paddingVertical: 9,
+              borderRadius: 20,
+              backgroundColor: active ? '#2563EB' : '#F8FAFC',
+              borderWidth: 1,
+              borderColor: active ? '#2563EB' : '#DBE3F0',
+            }}
+          >
+            <Text style={{ fontSize: 13, fontWeight: '600', color: active ? '#FFFFFF' : '#475569' }}>{o.label}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
+const asOptions = (list: readonly string[]) => list.map((v) => ({ label: v, value: v }));
+
 export default function Signup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  // Optional "about you" answers
+  const [level, setLevel] = useState('');
+  const [strand, setStrand] = useState('');
+  const [municipality, setMunicipality] = useState('');
+  const [needsScholarship, setNeedsScholarship] = useState('');
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -30,8 +84,10 @@ export default function Signup() {
     if (password.length < 8) return setError('Password must be at least 8 characters.');
     if (password !== confirmPassword) return setError('Passwords do not match.');
     setError('');
-    signIn(name.trim().split(' ')[0], trimmed);
-    router.replace('/dashboard');
+    const info: StudentInfo = { level, strand, municipality: municipality.trim(), needsScholarship };
+    signIn(name.trim().split(' ')[0], trimmed, info);
+    // New accounts get the optional "Take Match now" screen before Home.
+    router.replace('/welcome');
   };
 
   return (
@@ -322,6 +378,41 @@ export default function Signup() {
               </Text>
             </TouchableOpacity>
           </View>
+
+          {/* About you (all optional) */}
+          <View style={{ height: 1, backgroundColor: '#EEF2F7', marginBottom: 20 }} />
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#0F172A', marginBottom: 4 }}>About you</Text>
+          <Text style={{ fontSize: 13, color: '#64748B', marginBottom: 18, lineHeight: 18 }}>
+            Optional. Helps us tailor colleges and scholarships for you.
+          </Text>
+
+          <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 8 }}>Current level</Text>
+          <Choice options={asOptions(LEVELS)} value={level} onChange={setLevel} />
+
+          <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 8 }}>SHS strand</Text>
+          <Choice options={asOptions(STRANDS)} value={strand} onChange={setStrand} />
+
+          <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 8 }}>Municipality / city</Text>
+          <TextInput
+            style={{
+              height: 54,
+              borderWidth: 1,
+              borderColor: '#DBE3F0',
+              borderRadius: 14,
+              backgroundColor: '#F8FAFC',
+              paddingHorizontal: 16,
+              fontSize: 15,
+              color: '#0F172A',
+              marginBottom: 18,
+            }}
+            placeholder="e.g. Dipolog City"
+            placeholderTextColor="#94A3B8"
+            value={municipality}
+            onChangeText={setMunicipality}
+          />
+
+          <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 8 }}>Do you need a scholarship?</Text>
+          <Choice options={SCHOLARSHIP_NEEDS} value={needsScholarship} onChange={setNeedsScholarship} />
 
           {/* Create Account */}
           {error ? (

@@ -1,19 +1,18 @@
 import { Stack } from 'expo-router';
+import { View } from 'react-native';
 
-import { MenuButton, Sidebar } from '@/components/sidebar';
+import { BottomNav } from '@/components/bottom-nav';
 import { AppStateProvider } from '@/context/app-state';
-import { SidebarProvider } from '@/context/sidebar';
+import { NavVisibilityProvider } from '@/context/nav-visibility';
 
-// Screens you only see after logging in get the hamburger in the header.
-const withMenu = (title: string) => ({
-  title,
-  headerRight: () => <MenuButton />,
-});
+// Navigation lives in the bottom bar now, so signed-in screens just get a title.
+const withTitle = (title: string) => ({ title });
 
 export default function RootLayout() {
   return (
     <AppStateProvider>
-      <SidebarProvider>
+      <NavVisibilityProvider>
+      <View style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
         <Stack
           screenOptions={{
             headerShadowVisible: false,
@@ -27,20 +26,22 @@ export default function RootLayout() {
           <Stack.Screen name="login" options={{ headerShown: false }} />
           <Stack.Screen name="signup" options={{ headerShown: false }} />
           <Stack.Screen name="forgot-password" options={{ title: 'Reset password' }} />
+          <Stack.Screen name="welcome" options={{ headerShown: false, gestureEnabled: false }} />
           <Stack.Screen name="dashboard" options={{ headerShown: false, gestureEnabled: false }} />
-          <Stack.Screen name="course-match" options={withMenu('Course Match')} />
-          <Stack.Screen name="colleges" options={withMenu('Colleges')} />
-          <Stack.Screen name="scholarships" options={withMenu('Scholarships')} />
-          <Stack.Screen name="compare" options={withMenu('Compare colleges')} />
-          <Stack.Screen name="profile" options={withMenu('My profile')} />
-          <Stack.Screen name="saved" options={withMenu('Saved')} />
-          <Stack.Screen name="college/[id]" options={withMenu('College')} />
-          <Stack.Screen name="scholarship/[id]" options={withMenu('Scholarship')} />
+          <Stack.Screen name="course-match" options={withTitle('Course Match')} />
+          <Stack.Screen name="colleges" options={withTitle('Colleges')} />
+          <Stack.Screen name="scholarships" options={withTitle('Scholarships')} />
+          <Stack.Screen name="compare" options={withTitle('Compare colleges')} />
+          <Stack.Screen name="profile" options={withTitle('My profile')} />
+          <Stack.Screen name="saved" options={withTitle('Saved')} />
+          <Stack.Screen name="college/[id]" options={withTitle('College')} />
+          <Stack.Screen name="scholarship/[id]" options={withTitle('Scholarship')} />
         </Stack>
 
-        {/* Lives at the root so every signed-in screen can open it */}
-        <Sidebar />
-      </SidebarProvider>
+        {/* Bottom tab bar, floats over the bottom edge and hides on scroll (signed-in screens only) */}
+        <BottomNav />
+      </View>
+      </NavVisibilityProvider>
     </AppStateProvider>
   );
 }

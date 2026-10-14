@@ -3,6 +3,7 @@ import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useNavScroll } from '@/context/nav-visibility';
 import { Button, EmptyState, Tag, card } from '@/components/list-ui';
 import { useAppState } from '@/context/app-state';
 import { COLLEGES } from '@/data/colleges';
@@ -11,6 +12,7 @@ import { RIASEC_META } from '@/data/riasec';
 import { SCHOLARSHIPS } from '@/data/scholarships';
 
 export default function CollegeDetail() {
+  const nav = useNavScroll();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { savedColleges, toggleCollege } = useAppState();
   const college = COLLEGES.find((c) => c.id === id);
@@ -23,9 +25,9 @@ export default function CollegeDetail() {
   const scholarships = [...SCHOLARSHIPS].sort((a, b) => a.daysLeft - b.daysLeft).slice(0, 2);
 
   return (
-    <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
+    <SafeAreaView edges={['left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
       <Stack.Screen options={{ title: college.short }} />
-      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40, gap: 16 }} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: nav.bottomPad, gap: 16 }} {...nav.scrollProps} showsVerticalScrollIndicator={false}>
         <View style={{ ...card, alignItems: 'center', paddingVertical: 24 }}>
           <View
             style={{

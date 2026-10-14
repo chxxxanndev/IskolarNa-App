@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useNavScroll } from '@/context/nav-visibility';
 import { EmptyState, FilterChips, SaveButton, Tag, card } from '@/components/list-ui';
 import { useAppState } from '@/context/app-state';
 import { COLLEGES } from '@/data/colleges';
@@ -13,6 +14,7 @@ const TABS = ['Colleges', 'Scholarships'] as const;
 type Tab = (typeof TABS)[number];
 
 export default function Saved() {
+  const nav = useNavScroll();
   const [tab, setTab] = useState<Tab>('Colleges');
   const { savedColleges, savedScholarships, toggleCollege, toggleScholarship } = useAppState();
 
@@ -20,12 +22,12 @@ export default function Saved() {
   const scholarships = SCHOLARSHIPS.filter((s) => savedScholarships.includes(s.id)).sort((a, b) => a.daysLeft - b.daysLeft);
 
   return (
-    <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
+    <SafeAreaView edges={['left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
       <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12 }}>
         <FilterChips options={TABS} value={tab} onChange={setTab} />
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40, gap: 12 }} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: nav.bottomPad, gap: 12 }} {...nav.scrollProps} showsVerticalScrollIndicator={false}>
         {tab === 'Colleges' &&
           (colleges.length === 0 ? (
             <EmptyState title="No saved colleges" message="Tap the bookmark on a college to keep it here." />

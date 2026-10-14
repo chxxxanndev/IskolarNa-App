@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import type React from "react";
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -233,5 +234,38 @@ export function BulletList({
         </View>
       ))}
     </View>
+  );
+}
+
+
+/** Shown in place of the (sample) interest profile until the student has run Course Match. */
+export function MatchPrompt({ style }: { style?: object }) {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onPress={() => router.push('/course-match')}
+      accessibilityLabel="Complete your interest profile"
+      style={[{ ...card, flexDirection: 'row', alignItems: 'center', gap: 14 }, style]}
+    >
+      <View
+        style={{
+          width: 48,
+          height: 48,
+          borderRadius: 14,
+          backgroundColor: '#EFF6FF',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Ionicons name="compass-outline" size={24} color="#2563EB" />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: 15, fontWeight: '800', color: '#0F172A' }}>Complete your interest profile</Text>
+        <Text style={{ fontSize: 12, color: '#64748B', marginTop: 3, lineHeight: 17 }}>
+          Take Course Match (about 1 minute) to see your interests and get course suggestions.
+        </Text>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
+    </TouchableOpacity>
   );
 }

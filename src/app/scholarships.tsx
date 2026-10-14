@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useNavScroll } from '@/context/nav-visibility';
 import { useAppState } from '@/context/app-state';
 import { EmptyState, FilterChips, SaveButton, SearchBar, Tag, card } from '@/components/list-ui';
 import { SCHOLARSHIPS, type Scholarship } from '@/data/scholarships';
@@ -15,6 +16,7 @@ const URGENT_DAYS = 7;
 const CLOSING_SOON_DAYS = 14;
 
 export default function Scholarships() {
+  const nav = useNavScroll();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('All');
   const { savedScholarships, toggleScholarship } = useAppState();
@@ -81,7 +83,7 @@ export default function Scholarships() {
   };
 
   return (
-    <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
+    <SafeAreaView edges={['left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
       <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12, gap: 12 }}>
         <SearchBar value={query} onChangeText={setQuery} placeholder="Search scholarship or grantor" />
         <FilterChips options={FILTERS} value={filter} onChange={setFilter} />
@@ -96,7 +98,7 @@ export default function Scholarships() {
         renderItem={renderItem}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: nav.bottomPad }} {...nav.scrollProps}
         ListEmptyComponent={
           <EmptyState
             title="No scholarships found"

@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useNavScroll } from '@/context/nav-visibility';
 import { useAppState } from '@/context/app-state';
 import { EmptyState, FilterChips, SaveButton, SearchBar, Tag, card } from '@/components/list-ui';
 import { COLLEGES, type College } from '@/data/colleges';
@@ -12,6 +13,7 @@ const FILTERS = ['All', 'Public', 'Private', 'Saved'] as const;
 type Filter = (typeof FILTERS)[number];
 
 export default function Colleges() {
+  const nav = useNavScroll();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('All');
   const { savedColleges, toggleCollege } = useAppState();
@@ -78,7 +80,7 @@ export default function Colleges() {
   };
 
   return (
-    <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
+    <SafeAreaView edges={['left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
       <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12, gap: 12 }}>
         <SearchBar value={query} onChangeText={setQuery} placeholder="Search school, city, or program" />
         <FilterChips options={FILTERS} value={filter} onChange={setFilter} />
@@ -98,7 +100,7 @@ export default function Colleges() {
         renderItem={renderItem}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: nav.bottomPad }} {...nav.scrollProps}
         ListEmptyComponent={
           <EmptyState
             title="No colleges found"

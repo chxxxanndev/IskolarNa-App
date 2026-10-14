@@ -3,11 +3,13 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useNavScroll } from '@/context/nav-visibility';
 import { BulletList, Button, EmptyState, ProgressBar, Tag, card } from '@/components/list-ui';
 import { useAppState } from '@/context/app-state';
 import { SCHOLARSHIPS } from '@/data/scholarships';
 
 export default function ScholarshipDetail() {
+  const nav = useNavScroll();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { savedScholarships, toggleScholarship, prepared, toggleRequirement, reminders, toggleReminder } = useAppState();
   const s = SCHOLARSHIPS.find((x) => x.id === id);
@@ -23,9 +25,9 @@ export default function ScholarshipDetail() {
   const urgent = s.daysLeft <= 7;
 
   return (
-    <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
+    <SafeAreaView edges={['left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
       <Stack.Screen options={{ title: s.grantor }} />
-      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40, gap: 16 }} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: nav.bottomPad, gap: 16 }} {...nav.scrollProps} showsVerticalScrollIndicator={false}>
         <View style={{ ...card, alignItems: 'center', paddingVertical: 24 }}>
           <View
             style={{

@@ -3,8 +3,8 @@ import { router } from 'expo-router';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ProgressBar, Tag, card } from '@/components/list-ui';
-import { MenuButton } from '@/components/sidebar';
+import { useNavScroll } from '@/context/nav-visibility';
+import { MatchPrompt, ProgressBar, Tag, card } from '@/components/list-ui';
 import { useAppState } from '@/context/app-state';
 import { COLLEGES } from '@/data/colleges';
 import { topCodes } from '@/data/riasec';
@@ -29,20 +29,20 @@ function SectionHeader({ title, onSeeAll }: { title: string; onSeeAll: () => voi
 }
 
 export default function Dashboard() {
-  const { userName, profile, savedColleges, savedScholarships } = useAppState();
+  const nav = useNavScroll();
+  const { userName, profile, hasMatched, savedColleges, savedScholarships } = useAppState();
   const savedCount = savedColleges.length + savedScholarships.length;
   const closingSoon = [...SCHOLARSHIPS].sort((a, b) => a.daysLeft - b.daysLeft).slice(0, 3);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 40 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: nav.bottomPad }} {...nav.scrollProps}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flexShrink: 1 }}>
-            <MenuButton boxed />
             <View style={{ flexShrink: 1 }}>
               <Text style={{ fontSize: 14, color: '#64748B' }}>Welcome back,</Text>
               <Text
@@ -171,22 +171,28 @@ export default function Dashboard() {
         </View> */}
 
         {/* Interest profile */}
-        <SectionHeader title="Your interest profile" onSeeAll={() => router.push('/profile')} />
-        <TouchableOpacity activeOpacity={0.9} onPress={() => router.push('/profile')} style={{ ...card, marginBottom: 26 }}>
-          <Text style={{ fontSize: 12, color: '#64748B', marginBottom: 12 }}>
-            Top interests: {topCodes(profile).join(' · ')}
-          </Text>
-          {profile.map((r, i) => (
-            <View
-              key={r.code}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: i === profile.length - 1 ? 0 : 12 }}
-            >
-              <Text style={{ width: 96, fontSize: 13, fontWeight: '600', color: '#334155' }}>{r.label}</Text>
-              <ProgressBar value={r.score} color={r.score >= 60 ? '#2563EB' : '#93C5FD'} />
-              <Text style={{ width: 28, textAlign: 'right', fontSize: 12, color: '#64748B' }}>{r.score}</Text>
-            </View>
-          ))}
-        </TouchableOpacity>
+        {hasMatched ? (
+          <>
+          <SectionHeader title="Your interest profile" onSeeAll={() => router.push('/profile')} />
+          <TouchableOpacity activeOpacity={0.9} onPress={() => router.push('/profile')} style={{ ...card, marginBottom: 26 }}>
+            <Text style={{ fontSize: 12, color: '#64748B', marginBottom: 12 }}>
+              Top interests: {topCodes(profile).join(' · ')}
+            </Text>
+            {profile.map((r, i) => (
+              <View
+                key={r.code}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: i === profile.length - 1 ? 0 : 12 }}
+              >
+                <Text style={{ width: 96, fontSize: 13, fontWeight: '600', color: '#334155' }}>{r.label}</Text>
+                <ProgressBar value={r.score} color={r.score >= 60 ? '#2563EB' : '#93C5FD'} />
+                <Text style={{ width: 28, textAlign: 'right', fontSize: 12, color: '#64748B' }}>{r.score}</Text>
+              </View>
+            ))}
+          </TouchableOpacity>
+          </>
+        ) : (
+          <MatchPrompt style={{ marginBottom: 26 }} />
+        )}
 
         {/* Closing soon */}
         <SectionHeader title="Closing soon" onSeeAll={() => router.push('/scholarships')} />

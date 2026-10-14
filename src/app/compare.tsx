@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useNavScroll } from '@/context/nav-visibility';
 import { EmptyState, Tag, card } from '@/components/list-ui';
 import { COLLEGES } from '@/data/colleges';
 
 const MAX = 3;
 
 export default function Compare() {
+  const nav = useNavScroll();
   const { ids } = useLocalSearchParams<{ ids?: string }>();
   const [selected, setSelected] = useState<string[]>(
     (ids ?? '')
@@ -41,8 +43,8 @@ export default function Compare() {
   );
 
   return (
-    <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
-      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+    <SafeAreaView edges={['left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
+      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: nav.bottomPad }} {...nav.scrollProps} showsVerticalScrollIndicator={false}>
         <Text style={{ fontSize: 13, color: '#64748B', marginBottom: 12 }}>
           Pick 2 or 3 colleges ({selected.length}/{MAX} selected).
         </Text>
