@@ -1,4 +1,4 @@
-// Sample data — replace with your backend (e.g. Firestore) when ready.
+// Sample data — replace with your backend (e.g. Firestore) when ready. Tuition figures are placeholders; confirm real amounts with each college.
 export type CollegeType = 'Public' | 'Private';
 
 export type College = {
@@ -7,6 +7,8 @@ export type College = {
   short: string;
   city: string;
   type: CollegeType;
+  /** Estimated tuition per semester in pesos. 0 = free tuition. */
+  tuition: number;
   about: string;
   programs: string[];
 };
@@ -18,6 +20,7 @@ export const COLLEGES: College[] = [
     short: 'JRMSU',
     city: 'Dapitan',
     type: 'Public',
+    tuition: 0,
     about:
       'A state university serving Zamboanga del Norte with programs in computing, education, engineering, and the sciences.',
     programs: ['BS Information Technology', 'BS Computer Science', 'BS Education', 'BS Engineering'],
@@ -28,6 +31,7 @@ export const COLLEGES: College[] = [
     short: 'ABC',
     city: 'Dipolog',
     type: 'Private',
+    tuition: 12000,
     about:
       'A private college in Dipolog offering a mix of business, education, and technical programs.',
     programs: ['BS Business Administration', 'BS Education', 'BS Information Technology'],
@@ -38,6 +42,7 @@ export const COLLEGES: College[] = [
     short: 'SVC',
     city: 'Dipolog',
     type: 'Private',
+    tuition: 15000,
     about:
       'A private college in Dipolog with programs in education, business, and the liberal arts.',
     programs: ['BS Education', 'BS Accountancy', 'BA Communication', 'BS Criminology'],
@@ -48,8 +53,11 @@ export const COLLEGES: College[] = [
     short: 'DMCCFI',
     city: 'Dipolog',
     type: 'Private',
+    tuition: 14000,
     about:
       'A private college focused on health and allied-health programs, linked to a medical center.',
     programs: ['BS Nursing', 'BS Medical Technology', 'BS Midwifery'],
   },
 ];
+
+export const formatTuition = (n: number) => (n <= 0 ? 'Free' : `₱${String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`);

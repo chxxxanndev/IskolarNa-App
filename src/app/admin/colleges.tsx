@@ -1,6 +1,6 @@
 import { AdminScreen, CrudScreen } from '@/components/admin-ui';
 import { useCatalog } from '@/context/catalog';
-import type { College } from '@/data/colleges';
+import { formatTuition, type College } from '@/data/colleges';
 
 export default function AdminColleges() {
   const { colleges, upsert, remove } = useCatalog();
@@ -15,12 +15,13 @@ export default function AdminColleges() {
           { key: 'short', label: 'Short name', kind: 'text' },
           { key: 'city', label: 'City', kind: 'text' },
           { key: 'type', label: 'Type', kind: 'select', options: ['Public', 'Private'] },
+          { key: 'tuition', label: 'Tuition per semester (₱, 0 = free)', kind: 'number' },
           { key: 'about', label: 'About', kind: 'multiline' },
           { key: 'programs', label: 'Programs', kind: 'list' },
         ]}
         summary={(c) => {
           const x = c as unknown as College;
-          return { title: x.name, sub: `${x.short} · ${x.city} · ${x.type}`, tags: x.programs };
+          return { title: x.name, sub: `${x.short} · ${x.city} · ${x.type}`, tags: [`Tuition: ${formatTuition(x.tuition)}`, ...x.programs] };
         }}
         searchText={(c) => {
           const x = c as unknown as College;

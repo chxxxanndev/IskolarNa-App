@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useNavScroll } from '@/context/nav-visibility';
 import { EmptyState, Tag, card } from '@/components/list-ui';
-import { COLLEGES } from '@/data/colleges';
+import { COLLEGES, formatTuition } from '@/data/colleges';
 
 const MAX = 3;
 
@@ -25,6 +25,7 @@ export default function Compare() {
 
   const chosen = COLLEGES.filter((c) => selected.includes(c.id));
   const programCount = (name: string) => chosen.filter((c) => c.programs.includes(name)).length;
+  const lowestTuition = Math.min(...chosen.map((c) => c.tuition));
   const allPrograms = Array.from(new Set(chosen.flatMap((c) => c.programs)));
 
   const Row = ({ label, render }: { label: string; render: (c: (typeof COLLEGES)[number]) => React.ReactNode }) => (
@@ -103,6 +104,14 @@ export default function Compare() {
             </View>
 
             <Row label="Type" render={(c) => <Tag label={c.type} tone={c.type === 'Public' ? 'blue' : 'slate'} />} />
+            <Row
+              label="Tuition per semester"
+              render={(c) => (
+                <Text style={{ fontSize: 18, fontWeight: '800', color: c.tuition === lowestTuition ? '#15803D' : '#0F172A' }}>
+                  {formatTuition(c.tuition)}
+                </Text>
+              )}
+            />
             <Row label="City" render={(c) => <Text style={{ fontSize: 13, color: '#334155' }}>{c.city}</Text>} />
             <Row
               label="Programs"
@@ -127,7 +136,7 @@ export default function Compare() {
               )}
             />
             <Text style={{ fontSize: 11, color: '#94A3B8', textAlign: 'center' }}>
-              Blue programs are offered by more than one selected college ({allPrograms.filter((p) => programCount(p) > 1).length} shared).
+              Green tuition is the lowest of the selection. Amounts are estimates per semester; other fees may apply.{'\n'}Blue programs are offered by more than one selected college ({allPrograms.filter((p) => programCount(p) > 1).length} shared).
             </Text>
           </>
         )}
