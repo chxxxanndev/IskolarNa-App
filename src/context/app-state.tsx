@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 
+import { isAdminEmail } from '@/constants/admin';
 import { DEFAULT_PROFILE, type RiasecScore } from '@/data/riasec';
 
 // Frontend-only state. Swap the bodies of these actions for backend calls later.
@@ -19,6 +20,8 @@ export const EMPTY_STUDENT_INFO: StudentInfo = { level: '', strand: '', municipa
 type AppState = {
   userName: string;
   userEmail: string;
+  /** true when the signed-in email is on the admin allowlist (see constants/admin.ts) */
+  isAdmin: boolean;
   signIn: (name: string, email: string, info?: StudentInfo) => void;
   signOut: () => void;
 
@@ -62,6 +65,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const value: AppState = {
     userName,
     userEmail,
+    isAdmin: isAdminEmail(userEmail),
     signIn: (name, email, info) => {
       setUserName(name || 'Student');
       setUserEmail(email);

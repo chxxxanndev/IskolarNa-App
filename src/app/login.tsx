@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 
+import { isAdminEmail } from '@/constants/admin';
 import { useAppState } from '@/context/app-state';
 import {
   KeyboardAvoidingView,
@@ -27,7 +28,7 @@ export default function Login() {
     // Frontend only: derive a display name from the email until the backend is ready.
     const local = trimmed.split('@')[0].split(/[._-]/)[0];
     signIn(local.charAt(0).toUpperCase() + local.slice(1), trimmed);
-    router.replace('/dashboard');
+    router.replace(isAdminEmail(trimmed) ? '/admin' : '/dashboard');
   };
 
   return (

@@ -3,6 +3,7 @@ import { View } from 'react-native';
 
 import { BottomNav } from '@/components/bottom-nav';
 import { AppStateProvider } from '@/context/app-state';
+import { CatalogProvider } from '@/context/catalog';
 import { NavVisibilityProvider } from '@/context/nav-visibility';
 
 // Navigation lives in the bottom bar now, so signed-in screens just get a title.
@@ -11,6 +12,7 @@ const withTitle = (title: string) => ({ title });
 export default function RootLayout() {
   return (
     <AppStateProvider>
+      <CatalogProvider>
       <NavVisibilityProvider>
       <View style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
         <Stack
@@ -27,6 +29,7 @@ export default function RootLayout() {
           <Stack.Screen name="signup" options={{ headerShown: false }} />
           <Stack.Screen name="forgot-password" options={{ title: 'Reset password' }} />
           <Stack.Screen name="welcome" options={{ headerShown: false, gestureEnabled: false }} />
+          <Stack.Screen name="admin" options={{ headerShown: false, gestureEnabled: false }} />
           <Stack.Screen name="dashboard" options={{ headerShown: false, gestureEnabled: false }} />
           <Stack.Screen name="course-match" options={withTitle('Course Match')} />
           <Stack.Screen name="colleges" options={withTitle('Colleges')} />
@@ -42,6 +45,7 @@ export default function RootLayout() {
         <BottomNav />
       </View>
       </NavVisibilityProvider>
+      </CatalogProvider>
     </AppStateProvider>
   );
 }
