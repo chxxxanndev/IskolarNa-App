@@ -1,38 +1,69 @@
-import { Ionicons } from '@expo/vector-icons';
-import { router, usePathname } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Animated, Keyboard, Platform, Text, TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from "@expo/vector-icons";
+import { router, usePathname } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  Animated,
+  Keyboard,
+  Platform,
+  Text,
+  TouchableOpacity
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { useNavVisibility } from '@/context/nav-visibility';
+import { useNavVisibility } from "@/context/nav-visibility";
 
-type IconName = React.ComponentProps<typeof Ionicons>['name'];
+type IconName = React.ComponentProps<typeof Ionicons>["name"];
 
 type NavItem = {
   label: string;
   icon: IconName;
   activeIcon: IconName;
-  route: '/dashboard' | '/course-match' | '/colleges' | '/scholarships' | '/compare';
+  route: "/dashboard" | "/colleges" | "/scholarships" | "/compare" | "/profile";
   /** path prefixes that light this tab up (so detail pages keep their parent tab active) */
   match: string[];
 };
 
 const ITEMS: NavItem[] = [
-  { label: 'Home', icon: 'home-outline', activeIcon: 'home', route: '/dashboard', match: ['/dashboard'] },
-  { label: 'Match', icon: 'compass-outline', activeIcon: 'compass', route: '/course-match', match: ['/course-match'] },
-  { label: 'Colleges', icon: 'school-outline', activeIcon: 'school', route: '/colleges', match: ['/colleges', '/college'] },
   {
-    label: 'Scholarships',
-    icon: 'ribbon-outline',
-    activeIcon: 'ribbon',
-    route: '/scholarships',
-    match: ['/scholarships', '/scholarship'],
+    label: "Home",
+    icon: "home-outline",
+    activeIcon: "home",
+    route: "/dashboard",
+    match: ["/dashboard"],
   },
-  { label: 'Compare', icon: 'git-compare-outline', activeIcon: 'git-compare', route: '/compare', match: ['/compare'] },
+  {
+    label: "Colleges",
+    icon: "school-outline",
+    activeIcon: "school",
+    route: "/colleges",
+    match: ["/colleges", "/college"],
+  },
+  {
+    label: "Scholarships",
+    icon: "ribbon-outline",
+    activeIcon: "ribbon",
+    route: "/scholarships",
+    match: ["/scholarships", "/scholarship"],
+  },
+  {
+    label: "Compare",
+    icon: "git-compare-outline",
+    activeIcon: "git-compare",
+    route: "/compare",
+    match: ["/compare"],
+  },
+  // Profile sits on the far right of the bar.
+  {
+    label: "Profile",
+    icon: "person-outline",
+    activeIcon: "person",
+    route: "/profile",
+    match: ["/profile"],
+  },
 ];
 
 // Signed-in screens that don't have their own tab (reached from the Home header) still show the bar.
-const NO_TAB_BUT_SHOW_BAR = ['/saved', '/profile'];
+const NO_TAB_BUT_SHOW_BAR = ["/saved", "/course-match"];
 
 const matches = (pathname: string, prefixes: string[]) =>
   prefixes.some((m) => pathname === m || pathname.startsWith(`${m}/`));
@@ -55,8 +86,10 @@ export function BottomNav() {
   }, [pathname, setShown]);
 
   useEffect(() => {
-    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showEvent =
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent =
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
     const show = Keyboard.addListener(showEvent, () => setKeyboardOpen(true));
     const hide = Keyboard.addListener(hideEvent, () => setKeyboardOpen(false));
     return () => {
@@ -66,17 +99,18 @@ export function BottomNav() {
   }, []);
 
   const onSignedInScreen =
-    ITEMS.some((i) => matches(pathname, i.match)) || matches(pathname, NO_TAB_BUT_SHOW_BAR);
+    ITEMS.some((i) => matches(pathname, i.match)) ||
+    matches(pathname, NO_TAB_BUT_SHOW_BAR);
 
   if (!onSignedInScreen || keyboardOpen) return null;
 
   const go = (item: NavItem) => {
     if (pathname === item.route) return;
 
-    if (item.route === '/dashboard') {
+    if (item.route === "/dashboard") {
       // Home is the root of the signed-in stack, so go back to it instead of stacking a copy.
-      router.dismissTo('/dashboard');
-    } else if (pathname === '/dashboard') {
+      router.dismissTo("/dashboard");
+    } else if (pathname === "/dashboard") {
       router.push(item.route);
     } else {
       // Switching between tabs: replace, so Back still returns to Home.
@@ -89,15 +123,22 @@ export function BottomNav() {
       accessibilityRole="tablist"
       onLayout={(e) => setBarHeight(e.nativeEvent.layout.height)}
       style={{
-        position: 'absolute',
+        position: "absolute",
         left: 0,
         right: 0,
         bottom: 0,
-        transform: [{ translateY: translate.interpolate({ inputRange: [0, 1], outputRange: [0, barHeight] }) }],
-        flexDirection: 'row',
-        backgroundColor: '#FFFFFF',
+        transform: [
+          {
+            translateY: translate.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, barHeight],
+            }),
+          },
+        ],
+        flexDirection: "row",
+        backgroundColor: "#FFFFFF",
         borderTopWidth: 1,
-        borderTopColor: '#E2E8F0',
+        borderTopColor: "#E2E8F0",
         paddingTop: 8,
         paddingBottom: Math.max(insets.bottom, 8),
         paddingHorizontal: 4,
@@ -113,15 +154,24 @@ export function BottomNav() {
             accessibilityRole="tab"
             accessibilityLabel={item.label}
             accessibilityState={{ selected: active }}
-            style={{ flex: 1, alignItems: 'center', gap: 3, paddingVertical: 2 }}
+            style={{
+              flex: 1,
+              alignItems: "center",
+              gap: 3,
+              paddingVertical: 2,
+            }}
           >
-            <Ionicons name={active ? item.activeIcon : item.icon} size={24} color={active ? '#2563EB' : '#64748B'} />
+            <Ionicons
+              name={active ? item.activeIcon : item.icon}
+              size={24}
+              color={active ? "#2563EB" : "#64748B"}
+            />
             <Text
               numberOfLines={1}
               style={{
                 fontSize: 10,
-                fontWeight: active ? '800' : '600',
-                color: active ? '#1E3A8A' : '#64748B',
+                fontWeight: active ? "800" : "600",
+                color: active ? "#1E3A8A" : "#64748B",
               }}
             >
               {item.label}
