@@ -170,7 +170,7 @@ export default function Dashboard() {
         </View>
 
         {/* Hero */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           activeOpacity={0.85}
           onPress={() => router.push("/course-match")}
           style={{
@@ -233,7 +233,7 @@ export default function Dashboard() {
             </Text>
             <Ionicons name="arrow-forward" size={18} color="#2563EB" />
           </View>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         {/* Quick actions */}
         {/* <View style={{ flexDirection: 'row', gap: 10, marginBottom: 26 }}>

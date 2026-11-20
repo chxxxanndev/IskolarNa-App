@@ -1,8 +1,9 @@
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router } from "expo-router";
+import { useState } from "react";
 
-import { useAppState, type StudentInfo } from '@/context/app-state';
+import { useAppState, type StudentInfo } from "@/context/app-state";
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -10,14 +11,14 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
+} from "react-native";
 
-const LEVELS = ['Grade 11', 'Grade 12', 'Graduated'] as const;
-const STRANDS = ['STEM', 'ABM', 'HUMSS', 'GAS', 'TVL', 'Other'] as const;
+const LEVELS = ["Grade 11", "Grade 12", "Graduated"] as const;
+const STRANDS = ["STEM", "ABM", "HUMSS", "GAS", "TVL", "Other"] as const;
 const SCHOLARSHIP_NEEDS = [
-  { label: 'Yes', value: 'yes' },
-  { label: 'Not sure', value: 'maybe' },
-  { label: 'No', value: 'no' },
+  { label: "Yes", value: "yes" },
+  { label: "Not sure", value: "maybe" },
+  { label: "No", value: "no" },
 ] as const;
 
 /** Wrapping single-select chips. Tapping the selected chip again clears it (all of these questions are optional). */
@@ -31,26 +32,41 @@ function Choice({
   onChange: (next: string) => void;
 }) {
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 18 }}>
+    <View
+      style={{
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 8,
+        marginBottom: 18,
+      }}
+    >
       {options.map((o) => {
         const active = o.value === value;
         return (
           <TouchableOpacity
             key={o.value}
             activeOpacity={0.8}
-            onPress={() => onChange(active ? '' : o.value)}
+            onPress={() => onChange(active ? "" : o.value)}
             accessibilityRole="button"
             accessibilityState={{ selected: active }}
             style={{
               paddingHorizontal: 16,
               paddingVertical: 9,
               borderRadius: 20,
-              backgroundColor: active ? '#2563EB' : '#F8FAFC',
+              backgroundColor: active ? "#2563EB" : "#F8FAFC",
               borderWidth: 1,
-              borderColor: active ? '#2563EB' : '#DBE3F0',
+              borderColor: active ? "#2563EB" : "#DBE3F0",
             }}
           >
-            <Text style={{ fontSize: 13, fontWeight: '600', color: active ? '#FFFFFF' : '#475569' }}>{o.label}</Text>
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: "600",
+                color: active ? "#FFFFFF" : "#475569",
+              }}
+            >
+              {o.label}
+            </Text>
           </TouchableOpacity>
         );
       })}
@@ -58,59 +74,79 @@ function Choice({
   );
 }
 
-const asOptions = (list: readonly string[]) => list.map((v) => ({ label: v, value: v }));
+const asOptions = (list: readonly string[]) =>
+  list.map((v) => ({ label: v, value: v }));
 
 export default function Signup() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   // Optional "about you" answers
-  const [level, setLevel] = useState('');
-  const [strand, setStrand] = useState('');
-  const [municipality, setMunicipality] = useState('');
-  const [needsScholarship, setNeedsScholarship] = useState('');
+  const [level, setLevel] = useState("");
+  const [strand, setStrand] = useState("");
+  const [municipality, setMunicipality] = useState("");
+  const [needsScholarship, setNeedsScholarship] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState('');
-  const { signIn } = useAppState();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { signUp } = useAppState();
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     const trimmed = email.trim();
-    if (name.trim().length < 2) return setError('Enter your full name.');
-    if (!/^\S+@\S+\.\S+$/.test(trimmed)) return setError('Enter a valid email address.');
-    if (password.length < 8) return setError('Password must be at least 8 characters.');
-    if (password !== confirmPassword) return setError('Passwords do not match.');
-    setError('');
-    const info: StudentInfo = { level, strand, municipality: municipality.trim(), needsScholarship };
-    signIn(name.trim().split(' ')[0], trimmed, info);
+    if (name.trim().length < 2) return setError("Enter your full name.");
+    if (!/^\S+@\S+\.\S+$/.test(trimmed))
+      return setError("Enter a valid email address.");
+    if (password.length < 8)
+      return setError("Password must be at least 8 characters.");
+    if (password !== confirmPassword)
+      return setError("Passwords do not match.");
+    setError("");
+    setLoading(true);
+    const info: StudentInfo = {
+      level,
+      strand,
+      municipality: municipality.trim(),
+      needsScholarship,
+    };
+    const result = await signUp(name.trim(), trimmed, password, info);
+    setLoading(false);
+    if (result.error) return setError(result.error);
+    if (result.needsConfirmation) {
+      Alert.alert(
+        "Check your email",
+        "We sent a confirmation link. Confirm your email, then sign in.",
+        [{ text: "OK", onPress: () => router.replace("/login") }],
+      );
+      return;
+    }
     // New accounts get the optional "Take Match now" screen before Home.
-    router.replace('/welcome');
+    router.replace("/welcome");
   };
 
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
-          backgroundColor: '#F8FAFF',
+          backgroundColor: "#F8FAFF",
           paddingHorizontal: 24,
           paddingVertical: 40,
-          justifyContent: 'center',
+          justifyContent: "center",
         }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-
         {/* Logo & Branding */}
         <View
           style={{
-            alignItems: 'center',
+            alignItems: "center",
             marginBottom: 30,
           }}
         >
@@ -119,12 +155,12 @@ export default function Signup() {
               width: 72,
               height: 72,
               borderRadius: 22,
-              backgroundColor: '#2563EB',
-              justifyContent: 'center',
-              alignItems: 'center',
+              backgroundColor: "#2563EB",
+              justifyContent: "center",
+              alignItems: "center",
               marginBottom: 14,
 
-              shadowColor: '#2563EB',
+              shadowColor: "#2563EB",
               shadowOffset: {
                 width: 0,
                 height: 6,
@@ -136,9 +172,9 @@ export default function Signup() {
           >
             <Text
               style={{
-                color: '#FFFFFF',
+                color: "#FFFFFF",
                 fontSize: 36,
-                fontWeight: '800',
+                fontWeight: "800",
               }}
             >
               I
@@ -148,8 +184,8 @@ export default function Signup() {
           <Text
             style={{
               fontSize: 28,
-              fontWeight: '800',
-              color: '#1E3A8A',
+              fontWeight: "800",
+              color: "#1E3A8A",
             }}
           >
             IskolarNa
@@ -158,7 +194,7 @@ export default function Signup() {
           <Text
             style={{
               fontSize: 13,
-              color: '#64748B',
+              color: "#64748B",
               marginTop: 5,
             }}
           >
@@ -169,11 +205,11 @@ export default function Signup() {
         {/* Sign Up Card */}
         <View
           style={{
-            backgroundColor: '#FFFFFF',
+            backgroundColor: "#FFFFFF",
             borderRadius: 24,
             padding: 24,
 
-            shadowColor: '#0F172A',
+            shadowColor: "#0F172A",
             shadowOffset: {
               width: 0,
               height: 4,
@@ -183,13 +219,12 @@ export default function Signup() {
             elevation: 4,
           }}
         >
-
           {/* Heading */}
           <Text
             style={{
               fontSize: 25,
-              fontWeight: '700',
-              color: '#0F172A',
+              fontWeight: "700",
+              color: "#0F172A",
               marginBottom: 6,
             }}
           >
@@ -199,7 +234,7 @@ export default function Signup() {
           <Text
             style={{
               fontSize: 14,
-              color: '#64748B',
+              color: "#64748B",
               marginBottom: 24,
               lineHeight: 20,
             }}
@@ -211,8 +246,8 @@ export default function Signup() {
           <Text
             style={{
               fontSize: 13,
-              fontWeight: '600',
-              color: '#334155',
+              fontWeight: "600",
+              color: "#334155",
               marginBottom: 8,
             }}
           >
@@ -223,12 +258,12 @@ export default function Signup() {
             style={{
               height: 54,
               borderWidth: 1,
-              borderColor: '#DBE3F0',
+              borderColor: "#DBE3F0",
               borderRadius: 14,
-              backgroundColor: '#F8FAFC',
+              backgroundColor: "#F8FAFC",
               paddingHorizontal: 16,
               fontSize: 15,
-              color: '#0F172A',
+              color: "#0F172A",
               marginBottom: 18,
             }}
             placeholder="Enter your full name"
@@ -241,8 +276,8 @@ export default function Signup() {
           <Text
             style={{
               fontSize: 13,
-              fontWeight: '600',
-              color: '#334155',
+              fontWeight: "600",
+              color: "#334155",
               marginBottom: 8,
             }}
           >
@@ -253,12 +288,12 @@ export default function Signup() {
             style={{
               height: 54,
               borderWidth: 1,
-              borderColor: '#DBE3F0',
+              borderColor: "#DBE3F0",
               borderRadius: 14,
-              backgroundColor: '#F8FAFC',
+              backgroundColor: "#F8FAFC",
               paddingHorizontal: 16,
               fontSize: 15,
-              color: '#0F172A',
+              color: "#0F172A",
               marginBottom: 18,
             }}
             placeholder="Enter your email"
@@ -273,8 +308,8 @@ export default function Signup() {
           <Text
             style={{
               fontSize: 13,
-              fontWeight: '600',
-              color: '#334155',
+              fontWeight: "600",
+              color: "#334155",
               marginBottom: 8,
             }}
           >
@@ -285,11 +320,11 @@ export default function Signup() {
             style={{
               height: 54,
               borderWidth: 1,
-              borderColor: '#DBE3F0',
+              borderColor: "#DBE3F0",
               borderRadius: 14,
-              backgroundColor: '#F8FAFC',
-              flexDirection: 'row',
-              alignItems: 'center',
+              backgroundColor: "#F8FAFC",
+              flexDirection: "row",
+              alignItems: "center",
               paddingLeft: 16,
               paddingRight: 12,
               marginBottom: 18,
@@ -299,7 +334,7 @@ export default function Signup() {
               style={{
                 flex: 1,
                 fontSize: 15,
-                color: '#0F172A',
+                color: "#0F172A",
               }}
               placeholder="Create a password"
               placeholderTextColor="#94A3B8"
@@ -308,17 +343,15 @@ export default function Signup() {
               secureTextEntry={!showPassword}
             />
 
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-            >
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <Text
                 style={{
-                  color: '#2563EB',
+                  color: "#2563EB",
                   fontSize: 13,
-                  fontWeight: '600',
+                  fontWeight: "600",
                 }}
               >
-                {showPassword ? 'Hide' : 'Show'}
+                {showPassword ? "Hide" : "Show"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -327,8 +360,8 @@ export default function Signup() {
           <Text
             style={{
               fontSize: 13,
-              fontWeight: '600',
-              color: '#334155',
+              fontWeight: "600",
+              color: "#334155",
               marginBottom: 8,
             }}
           >
@@ -339,11 +372,11 @@ export default function Signup() {
             style={{
               height: 54,
               borderWidth: 1,
-              borderColor: '#DBE3F0',
+              borderColor: "#DBE3F0",
               borderRadius: 14,
-              backgroundColor: '#F8FAFC',
-              flexDirection: 'row',
-              alignItems: 'center',
+              backgroundColor: "#F8FAFC",
+              flexDirection: "row",
+              alignItems: "center",
               paddingLeft: 16,
               paddingRight: 12,
               marginBottom: 24,
@@ -353,7 +386,7 @@ export default function Signup() {
               style={{
                 flex: 1,
                 fontSize: 15,
-                color: '#0F172A',
+                color: "#0F172A",
               }}
               placeholder="Re-enter your password"
               placeholderTextColor="#94A3B8"
@@ -363,46 +396,97 @@ export default function Signup() {
             />
 
             <TouchableOpacity
-              onPress={() =>
-                setShowConfirmPassword(!showConfirmPassword)
-              }
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
             >
               <Text
                 style={{
-                  color: '#2563EB',
+                  color: "#2563EB",
                   fontSize: 13,
-                  fontWeight: '600',
+                  fontWeight: "600",
                 }}
               >
-                {showConfirmPassword ? 'Hide' : 'Show'}
+                {showConfirmPassword ? "Hide" : "Show"}
               </Text>
             </TouchableOpacity>
           </View>
 
           {/* About you (all optional) */}
-          <View style={{ height: 1, backgroundColor: '#EEF2F7', marginBottom: 20 }} />
-          <Text style={{ fontSize: 16, fontWeight: '700', color: '#0F172A', marginBottom: 4 }}>About you</Text>
-          <Text style={{ fontSize: 13, color: '#64748B', marginBottom: 18, lineHeight: 18 }}>
+          <View
+            style={{ height: 1, backgroundColor: "#EEF2F7", marginBottom: 20 }}
+          />
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: "700",
+              color: "#0F172A",
+              marginBottom: 4,
+            }}
+          >
+            About you
+          </Text>
+          <Text
+            style={{
+              fontSize: 13,
+              color: "#64748B",
+              marginBottom: 18,
+              lineHeight: 18,
+            }}
+          >
             Optional. Helps us tailor colleges and scholarships for you.
           </Text>
 
-          <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 8 }}>Current level</Text>
-          <Choice options={asOptions(LEVELS)} value={level} onChange={setLevel} />
+          <Text
+            style={{
+              fontSize: 13,
+              fontWeight: "600",
+              color: "#334155",
+              marginBottom: 8,
+            }}
+          >
+            Current level
+          </Text>
+          <Choice
+            options={asOptions(LEVELS)}
+            value={level}
+            onChange={setLevel}
+          />
 
-          <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 8 }}>SHS strand</Text>
-          <Choice options={asOptions(STRANDS)} value={strand} onChange={setStrand} />
+          <Text
+            style={{
+              fontSize: 13,
+              fontWeight: "600",
+              color: "#334155",
+              marginBottom: 8,
+            }}
+          >
+            SHS strand
+          </Text>
+          <Choice
+            options={asOptions(STRANDS)}
+            value={strand}
+            onChange={setStrand}
+          />
 
-          <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 8 }}>Municipality / city</Text>
+          <Text
+            style={{
+              fontSize: 13,
+              fontWeight: "600",
+              color: "#334155",
+              marginBottom: 8,
+            }}
+          >
+            Municipality / city
+          </Text>
           <TextInput
             style={{
               height: 54,
               borderWidth: 1,
-              borderColor: '#DBE3F0',
+              borderColor: "#DBE3F0",
               borderRadius: 14,
-              backgroundColor: '#F8FAFC',
+              backgroundColor: "#F8FAFC",
               paddingHorizontal: 16,
               fontSize: 15,
-              color: '#0F172A',
+              color: "#0F172A",
               marginBottom: 18,
             }}
             placeholder="e.g. Dipolog City"
@@ -411,12 +495,33 @@ export default function Signup() {
             onChangeText={setMunicipality}
           />
 
-          <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 8 }}>Do you need a scholarship?</Text>
-          <Choice options={SCHOLARSHIP_NEEDS} value={needsScholarship} onChange={setNeedsScholarship} />
+          <Text
+            style={{
+              fontSize: 13,
+              fontWeight: "600",
+              color: "#334155",
+              marginBottom: 8,
+            }}
+          >
+            Do you need a scholarship?
+          </Text>
+          <Choice
+            options={SCHOLARSHIP_NEEDS}
+            value={needsScholarship}
+            onChange={setNeedsScholarship}
+          />
 
           {/* Create Account */}
           {error ? (
-            <Text style={{ color: '#B91C1C', fontSize: 13, fontWeight: '600', marginBottom: 12, textAlign: 'center' }}>
+            <Text
+              style={{
+                color: "#B91C1C",
+                fontSize: 13,
+                fontWeight: "600",
+                marginBottom: 12,
+                textAlign: "center",
+              }}
+            >
               {error}
             </Text>
           ) : null}
@@ -424,12 +529,12 @@ export default function Signup() {
             activeOpacity={0.8}
             style={{
               height: 54,
-              backgroundColor: '#2563EB',
+              backgroundColor: "#2563EB",
               borderRadius: 14,
-              justifyContent: 'center',
-              alignItems: 'center',
+              justifyContent: "center",
+              alignItems: "center",
 
-              shadowColor: '#2563EB',
+              shadowColor: "#2563EB",
               shadowOffset: {
                 width: 0,
                 height: 5,
@@ -439,15 +544,16 @@ export default function Signup() {
               elevation: 4,
             }}
             onPress={handleSignUp}
+            disabled={loading}
           >
             <Text
               style={{
-                color: '#FFFFFF',
+                color: "#FFFFFF",
                 fontSize: 16,
-                fontWeight: '700',
+                fontWeight: "700",
               }}
             >
-              Create Account
+              {loading ? "Creating account…" : "Create Account"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -455,26 +561,26 @@ export default function Signup() {
         {/* Login */}
         <View
           style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
+            flexDirection: "row",
+            justifyContent: "center",
             marginTop: 24,
           }}
         >
           <Text
             style={{
-              color: '#64748B',
+              color: "#64748B",
               fontSize: 14,
             }}
           >
-            Already have an account?{' '}
+            Already have an account?{" "}
           </Text>
 
           <TouchableOpacity onPress={() => router.back()}>
             <Text
               style={{
-                color: '#2563EB',
+                color: "#2563EB",
                 fontSize: 14,
-                fontWeight: '700',
+                fontWeight: "700",
               }}
             >
               Log In
@@ -485,15 +591,14 @@ export default function Signup() {
         {/* Bottom Text */}
         <Text
           style={{
-            textAlign: 'center',
-            color: '#94A3B8',
+            textAlign: "center",
+            color: "#94A3B8",
             fontSize: 11,
             marginTop: 28,
           }}
         >
           Your future starts with the right choice.
         </Text>
-
       </ScrollView>
     </KeyboardAvoidingView>
   );
