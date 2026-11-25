@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import type React from "react";
-import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export const card = {
   backgroundColor: '#FFFFFF',
@@ -176,6 +176,7 @@ export function Button({
   icon,
   variant = 'primary',
   disabled = false,
+  loading = false,
   flex = false,
 }: {
   label: string;
@@ -183,6 +184,8 @@ export function Button({
   icon?: React.ComponentProps<typeof Ionicons>['name'];
   variant?: 'primary' | 'secondary' | 'danger';
   disabled?: boolean;
+  /** Shows a spinner and blocks taps while a request is running. */
+  loading?: boolean;
   flex?: boolean;
 }) {
   const styles = {
@@ -193,7 +196,7 @@ export function Button({
   return (
     <TouchableOpacity
       activeOpacity={0.8}
-      disabled={disabled}
+      disabled={disabled || loading}
       onPress={onPress}
       style={{
         flex: flex ? 1 : undefined,
@@ -206,10 +209,10 @@ export function Button({
         justifyContent: 'center',
         alignItems: 'center',
         gap: 8,
-        opacity: disabled ? 0.5 : 1,
+        opacity: disabled || loading ? 0.5 : 1,
       }}
     >
-      {icon && <Ionicons name={icon} size={18} color={styles.fg} />}
+      {loading ? <ActivityIndicator size="small" color={styles.fg} /> : icon && <Ionicons name={icon} size={18} color={styles.fg} />}
       <Text style={{ color: styles.fg, fontSize: 15, fontWeight: '700' }}>{label}</Text>
     </TouchableOpacity>
   );
