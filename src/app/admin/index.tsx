@@ -107,6 +107,10 @@ export default function AdminDashboard() {
         })}
       </View>
 
+      <TouchableOpacity onPress={() => router.push('/admin/status')} style={{ alignSelf: 'center', padding: 8 }}>
+        <Text style={{ fontSize: 13, fontWeight: '600', color: '#2563EB' }}>Backend status</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity onPress={() => router.replace('/dashboard')} style={{ alignSelf: 'center', padding: 8 }}>
         <Text style={{ fontSize: 13, fontWeight: '600', color: '#2563EB' }}>Preview the student app</Text>
       </TouchableOpacity>
