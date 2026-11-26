@@ -1,6 +1,6 @@
 import { AdminScreen, CrudScreen } from '@/components/admin-ui';
-import { useCatalog } from '@/context/catalog';
 import { formatTuition, type College } from '@/data/colleges';
+import { useCatalog } from '@/hooks/use-catalog';
 
 export default function AdminColleges() {
   const { colleges, courses, upsert, remove } = useCatalog();

@@ -1,7 +1,7 @@
 import { AdminScreen, CrudScreen } from '@/components/admin-ui';
-import { useCatalog } from '@/context/catalog';
 import type { Course } from '@/data/courses';
 import { CODES, RIASEC_META } from '@/data/riasec';
+import { useCatalog } from '@/hooks/use-catalog';
 
 export default function AdminCourses() {
   const { courses, upsert, remove } = useCatalog();

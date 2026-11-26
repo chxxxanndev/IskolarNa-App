@@ -1,6 +1,6 @@
 import { AdminScreen, CrudScreen } from '@/components/admin-ui';
-import { useCatalog } from '@/context/catalog';
 import type { Student } from '@/data/students';
+import { useCatalog } from '@/hooks/use-catalog';
 
 const NEEDS: Record<string, string> = { yes: 'Needs scholarship', maybe: 'Unsure', no: 'No scholarship' };
 

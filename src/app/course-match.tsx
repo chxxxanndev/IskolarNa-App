@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useNavScroll } from '@/context/nav-visibility';
-import { Button, ProgressBar, Tag, card } from '@/components/list-ui';
+import { Button, card, ProgressBar, Tag } from '@/components/list-ui';
 import { useAppState } from '@/context/app-state';
+import { useNavScroll } from '@/context/nav-visibility';
 import { collegesOffering } from '@/data/courses';
 import { RIASEC_META } from '@/data/riasec';
+import { InterestQuiz } from '@/features/course-match/interest-quiz';
 import { analyzeInterests, INTEREST_SUGGESTIONS, type MatchResult } from '@/lib/match';
 
 export default function CourseMatch() {
@@ -17,6 +18,7 @@ export default function CourseMatch() {
   const [text, setText] = useState('');
   const [result, setResult] = useState<MatchResult | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [mode, setMode] = useState<'quiz' | 'describe'>('quiz');
 
   const run = () => {
     const r = analyzeInterests(text);
@@ -33,6 +35,22 @@ export default function CourseMatch() {
           contentContainerStyle={{ padding: 20, paddingBottom: nav.bottomPad, gap: 16 }} {...nav.scrollProps}
           showsVerticalScrollIndicator={false}
         >
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            <Button flex variant={mode === 'quiz' ? 'primary' : 'secondary'} label="Take the quiz" onPress={() => setMode('quiz')} />
+            <Button flex variant={mode === 'describe' ? 'primary' : 'secondary'} label="Describe it" onPress={() => setMode('describe')} />
+          </View>
+
+          {mode === 'quiz' && (
+            <InterestQuiz
+              onFinish={(r) => {
+                setResult(r);
+                setSubmitted(true);
+                setProfile(r.profile);
+              }}
+            />
+          )}
+
+          {mode === 'describe' && (
           <View style={card}>
             <Text style={{ fontSize: 17, fontWeight: '800', color: '#0F172A', marginBottom: 4 }}>What do you enjoy?</Text>
             <Text style={{ fontSize: 13, color: '#64748B', lineHeight: 19, marginBottom: 14 }}>
@@ -81,6 +99,7 @@ export default function CourseMatch() {
             </ScrollView>
             <Button label="Find my match" icon="sparkles-outline" disabled={text.trim().length < 3} onPress={run} />
           </View>
+          )}
 
           {submitted && !result && (
             <View style={{ ...card, alignItems: 'center' }}>

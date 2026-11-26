@@ -5,8 +5,8 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { AdminScreen } from '@/components/admin-ui';
 import { ProgressBar, Tag, card } from '@/components/list-ui';
 import { useAppState } from '@/context/app-state';
-import { useCatalog } from '@/context/catalog';
 import { CODES, RIASEC_META } from '@/data/riasec';
+import { useCatalog } from '@/hooks/use-catalog';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 

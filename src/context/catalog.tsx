@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useEffect, useState, type ReactNode } from 'react';
 import { Alert } from 'react-native';
 
 import {
@@ -35,7 +35,7 @@ type Catalog = {
   remove: (kind: CatalogKind, id: string) => Promise<void>;
 };
 
-const CatalogContext = createContext<Catalog | null>(null);
+export const CatalogContext = createContext<Catalog | null>(null);
 
 export function CatalogProvider({ children }: { children: ReactNode }) {
   const [version, setVersion] = useState(0); // bump to re-render subscribers after an in-place edit
@@ -124,18 +124,4 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
   };
 
   return <CatalogContext.Provider value={value}>{children}</CatalogContext.Provider>;
-}
-
-/** Returns fresh copies of every list (re-renders after each admin change) plus the edit actions. */
-export function useCatalog() {
-  const ctx = useContext(CatalogContext);
-  const courses = useMemo(() => [...COURSES], [ctx?.version]);
-  if (!ctx) throw new Error('useCatalog must be used inside <CatalogProvider>');
-  return {
-    ...ctx,
-    colleges: [...COLLEGES],
-    scholarships: [...SCHOLARSHIPS],
-    courses,
-    students: [...STUDENTS],
-  };
 }

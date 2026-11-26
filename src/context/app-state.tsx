@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { Alert } from "react-native";
 
 import {
   getSessionUser,
@@ -16,7 +17,16 @@ import {
   signOutLocal,
   signUpWithEmail,
 } from "@/api/auth";
+import type { ApiResult } from "@/api/errors";
 import { getProfile } from "@/api/profiles";
+import {
+  fetchStudentData,
+  saveRiasec,
+  setReminder,
+  setRequirement,
+  setSavedCollege,
+  setSavedScholarship,
+} from "@/api/student-data";
 import { DEFAULT_PROFILE, type RiasecScore } from "@/data/riasec";
 
 export type StudentInfo = {
@@ -124,9 +134,30 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       municipality: data?.municipality ?? "",
       needsScholarship: data?.needs_scholarship ?? "",
     });
+    // This student's saved items and Course Match result
+    const mine = await fetchStudentData();
+    if (mine.error !== null) console.warn("Could not load saved data:", mine.error);
+    else {
+      setSavedColleges(mine.data.savedColleges);
+      setSavedScholarships(mine.data.savedScholarships);
+      setPrepared(mine.data.prepared);
+      setReminders(mine.data.reminders);
+      if (mine.data.riasec) {
+        setProfileState(mine.data.riasec);
+        setHasMatched(true);
+      }
+    }
     setSignedIn(true);
     return role;
   };
+
+  /** Runs a save in the background; if it fails, puts the screen back and tells the student. */
+  const persist = (request: Promise<ApiResult<null>>, undo: () => void) =>
+    request.then((result) => {
+      if (result.error === null) return;
+      undo();
+      Alert.alert("Could not save", result.error);
+    });
 
   const resetLocal = () => {
     setSignedIn(false);
@@ -203,16 +234,33 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setProfile: (p) => {
       setProfileState(p);
       setHasMatched(true);
+      void persist(saveRiasec(p), () => {});
     },
     savedColleges,
     savedScholarships,
-    toggleCollege: (id) => setSavedColleges((l) => toggleIn(l, id)),
-    toggleScholarship: (id) => setSavedScholarships((l) => toggleIn(l, id)),
+    toggleCollege: (id) => {
+      const on = !savedColleges.includes(id);
+      setSavedColleges((l) => toggleIn(l, id));
+      void persist(setSavedCollege(id, on), () => setSavedColleges((l) => toggleIn(l, id)));
+    },
+    toggleScholarship: (id) => {
+      const on = !savedScholarships.includes(id);
+      setSavedScholarships((l) => toggleIn(l, id));
+      void persist(setSavedScholarship(id, on), () => setSavedScholarships((l) => toggleIn(l, id)));
+    },
     prepared,
-    toggleRequirement: (sid, req) =>
-      setPrepared((p) => ({ ...p, [sid]: toggleIn(p[sid] ?? [], req) })),
+    toggleRequirement: (sid, req) => {
+      const done = !(prepared[sid] ?? []).includes(req);
+      const flip = () => setPrepared((p) => ({ ...p, [sid]: toggleIn(p[sid] ?? [], req) }));
+      flip();
+      void persist(setRequirement(sid, req, done), flip);
+    },
     reminders,
-    toggleReminder: (id) => setReminders((l) => toggleIn(l, id)),
+    toggleReminder: (id) => {
+      const on = !reminders.includes(id);
+      setReminders((l) => toggleIn(l, id));
+      void persist(setReminder(id, on), () => setReminders((l) => toggleIn(l, id)));
+    },
   };
 
   return (
