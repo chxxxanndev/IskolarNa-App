@@ -16,7 +16,7 @@ import {
   signOutLocal,
   signUpWithEmail,
 } from "@/api/auth";
-import { supabase } from "@/api/client";
+import { getProfile } from "@/api/profiles";
 import { DEFAULT_PROFILE, type RiasecScore } from "@/data/riasec";
 
 export type StudentInfo = {
@@ -107,12 +107,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   /** Load this user's row from the `profiles` table into state. Returns their role. */
   const hydrate = async (user: User): Promise<"student" | "admin"> => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("name, role, level, strand, municipality, needs_scholarship")
-      .eq("id", user.id)
-      .maybeSingle();
-    if (error) console.warn("Could not load profile:", error.message);
+    const { data, error } = await getProfile(user.id);
+    if (error !== null) console.warn("Could not load profile:", error);
 
     const fullName =
       data?.name ??
