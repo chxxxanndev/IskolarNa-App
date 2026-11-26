@@ -11,7 +11,12 @@ import {
   View,
 } from "react-native";
 
-import { supabase } from "@/api/client";
+import {
+  requestPasswordCode,
+  signOutLocal,
+  updatePassword,
+  verifyResetCode,
+} from "@/api/auth";
 import { Button, card } from "@/components/list-ui";
 
 type Step = "email" | "code" | "done";
@@ -73,13 +78,13 @@ export default function ForgotPassword() {
       return setError("Enter a valid email address.");
     setError("");
     setLoading(true);
-    const { error: e } = await supabase.auth.resetPasswordForEmail(trimmed);
+    const sent = await requestPasswordCode(trimmed);
     setLoading(false);
-    if (e) {
+    if (sent.error !== null) {
       // "For security purposes, you can only request this after 49 seconds." -> count it down
-      const wait = /after (\d+) second/i.exec(e.message);
+      const wait = /after (\d+) second/i.exec(sent.error);
       if (wait) return setCooldown(Number(wait[1]));
-      return setError(e.message);
+      return setError(sent.error);
     }
     setVerified(false);
     setCode("");
@@ -98,31 +103,17 @@ export default function ForgotPassword() {
     setLoading(true);
 
     if (!verified) {
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        email: email.trim(),
-        token,
-        type: "recovery",
-      });
-      if (verifyError) {
+      const checked = await verifyResetCode(email.trim(), token);
+      if (checked.error !== null) {
         setLoading(false);
-        return setError(
-          /expired|invalid/i.test(verifyError.message)
-            ? "That code is wrong or has expired. Request a new one."
-            : verifyError.message,
-        );
+        return setError(checked.error);
       }
       setVerified(true);
     }
 
-    const { error: updateError } = await supabase.auth.updateUser({ password });
+    const saved = await updatePassword(password);
     setLoading(false);
-    if (updateError) {
-      return setError(
-        /different from the old/i.test(updateError.message)
-          ? "Choose a password you haven't used before."
-          : updateError.message,
-      );
-    }
+    if (saved.error !== null) return setError(saved.error);
     Keyboard.dismiss(); // otherwise the keyboard can stay open and cover the button below
     setStep("done");
   };
@@ -133,7 +124,7 @@ export default function ForgotPassword() {
   const toSignIn = () => {
     if (router.canGoBack()) router.back();
     else router.replace("/login");
-    void supabase.auth.signOut({ scope: "local" });
+    void signOutLocal();
   };
 
   const icon =

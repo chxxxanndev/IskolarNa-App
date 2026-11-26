@@ -79,3 +79,38 @@ export function onSignedOut(callback: () => void): () => void {
   });
   return () => data.subscription.unsubscribe();
 }
+
+/** Emails a one-time code for resetting the password. The error may say how many seconds to wait. */
+export async function requestPasswordCode(email: string): Promise<ApiResult<null>> {
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
+  if (error) return { data: null, error: friendlyError(error.message) };
+  return { data: null, error: null };
+}
+
+/** Checks the emailed code. A correct code also starts a short session so the password can be changed. */
+export async function verifyResetCode(email: string, token: string): Promise<ApiResult<null>> {
+  const { error } = await supabase.auth.verifyOtp({ email, token, type: "recovery" });
+  if (error) {
+    const wrongOrExpired = /expired|invalid/i.test(error.message);
+    return {
+      data: null,
+      error: wrongOrExpired
+        ? "That code is wrong or has expired. Request a new one."
+        : friendlyError(error.message),
+    };
+  }
+  return { data: null, error: null };
+}
+
+/** Sets a new password for the signed-in user (used right after the reset code is verified). */
+export async function updatePassword(password: string): Promise<ApiResult<null>> {
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    const reused = /different from the old/i.test(error.message);
+    return {
+      data: null,
+      error: reused ? "Choose a password you haven't used before." : friendlyError(error.message),
+    };
+  }
+  return { data: null, error: null };
+}
