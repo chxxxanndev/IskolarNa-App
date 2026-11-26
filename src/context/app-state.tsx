@@ -9,8 +9,15 @@ import {
   type ReactNode,
 } from "react";
 
+import {
+  getSessionUser,
+  onSignedOut,
+  signInWithPassword,
+  signOutLocal,
+  signUpWithEmail,
+} from "@/api/auth";
+import { supabase } from "@/api/client";
 import { DEFAULT_PROFILE, type RiasecScore } from "@/data/riasec";
-import { supabase } from "@/lib/supabase";
 
 export type StudentInfo = {
   /** 'Grade 11' | 'Grade 12' | 'Graduated' | '' (not answered) */
@@ -81,21 +88,6 @@ const AppStateContext = createContext<AppState | null>(null);
 const toggleIn = (list: string[], id: string) =>
   list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
 
-/** Turn Supabase's technical messages into something a student can act on. */
-const friendlyError = (message: string) => {
-  const m = message.toLowerCase();
-  if (m.includes("invalid login credentials"))
-    return "Incorrect email or password.";
-  if (m.includes("already registered"))
-    return "An account with this email already exists.";
-  if (m.includes("email not confirmed"))
-    return "Please confirm your email first. Check your inbox.";
-  if (m.includes("rate limit"))
-    return "Too many attempts. Please wait a moment and try again.";
-  if (m.includes("network")) return "No internet connection. Please try again.";
-  return message;
-};
-
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [signedIn, setSignedIn] = useState(false);
@@ -158,27 +150,23 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     let active = true;
 
     // App start: restore the saved session, if there is one.
-    supabase.auth.getSession().then(async ({ data }) => {
-      if (data.session) await hydrate(data.session.user);
+    getSessionUser().then(async (user) => {
+      if (user) await hydrate(user);
       if (active) {
         ready.current = true;
         setLoading(false);
       }
     });
 
-    // Only react to sign-out here (including a session that expired or was revoked).
-    // Sign-in and sign-up load the profile themselves, so we never call Supabase from inside
-    // this callback (doing that can deadlock the auth client).
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") {
-        resetLocal();
-        if (ready.current) router.replace("/login");
-      }
+    // Only react to sign-out here. Sign-in and sign-up load the profile themselves.
+    const stopListening = onSignedOut(() => {
+      resetLocal();
+      if (ready.current) router.replace("/login");
     });
 
     return () => {
       active = false;
-      sub.subscription.unsubscribe();
+      stopListening();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -191,40 +179,26 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     isAdmin,
 
     signIn: async (email, password) => {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error || !data.user)
-        return { error: friendlyError(error?.message ?? "Could not sign in.") };
-      return { role: await hydrate(data.user) };
+      const result = await signInWithPassword(email, password);
+      if (result.error !== null) return { error: result.error };
+      return { role: await hydrate(result.data) };
     },
 
     signUp: async (name, email, password, info) => {
-      const { data, error } = await supabase.auth.signUp({
+      const result = await signUpWithEmail({
+        name,
         email,
         password,
-        // The database trigger copies these into the new `profiles` row.
-        options: {
-          data: {
-            name,
-            level: info.level,
-            strand: info.strand,
-            municipality: info.municipality,
-            needs_scholarship: info.needsScholarship,
-          },
-        },
+        ...info,
       });
-      if (error) return { error: friendlyError(error.message) };
-      // "Confirm email" is on: the account exists but there is no session until they confirm.
-      if (!data.session || !data.user) return { needsConfirmation: true };
-      return { role: await hydrate(data.user) };
+      if (result.error !== null) return { error: result.error };
+      if (result.data.needsConfirmation) return { needsConfirmation: true };
+      return { role: await hydrate(result.data.user) };
     },
 
     signOut: () => {
       resetLocal();
-      // 'local' signs out this device only, not every device the student is logged in on.
-      void supabase.auth.signOut({ scope: "local" });
+      void signOutLocal();
     },
 
     studentInfo,

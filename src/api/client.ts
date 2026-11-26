@@ -15,7 +15,8 @@ if (!url || !key) {
 
 export const supabase = createClient(url, key, {
   auth: {
-    ...(Platform.OS !== 'web' ? { storage: AsyncStorage } : {}), // keeps the user signed in between app launches (phone only)    autoRefreshToken: true,
+    ...(Platform.OS !== 'web' ? { storage: AsyncStorage } : {}), // keeps the user signed in between app launches (phone only)
+    autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,
   },

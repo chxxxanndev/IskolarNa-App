@@ -11,8 +11,8 @@ import {
   View,
 } from "react-native";
 
+import { supabase } from "@/api/client";
 import { Button, card } from "@/components/list-ui";
-import { supabase } from "@/lib/supabase";
 
 type Step = "email" | "code" | "done";
 

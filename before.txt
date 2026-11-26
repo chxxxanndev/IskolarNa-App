@@ -1,0 +1,101 @@
+src/app/_layout.tsx:12:export default function RootLayout() {
+src/app/admin/_layout.tsx:9:export default function AdminLayout() {
+src/app/admin/colleges.tsx:5:export default function AdminColleges() {
+src/app/admin/courses.tsx:6:export default function AdminCourses() {
+src/app/admin/index.tsx:20:export default function AdminDashboard() {
+src/app/admin/scholarships.tsx:5:export default function AdminScholarships() {
+src/app/admin/students.tsx:7:export default function AdminStudents() {
+src/app/college/[id].tsx:14:export default function CollegeDetail() {
+src/app/colleges.tsx:15:export default function Colleges() {
+src/app/compare.tsx:13:export default function Compare() {
+src/app/course-match.tsx:14:export default function CourseMatch() {
+src/app/dashboard.tsx:49:export default function Dashboard() {
+src/app/explore.tsx:14:export default function TabTwoScreen() {
+src/app/forgot-password.tsx:50:export default function ForgotPassword() {
+src/app/index.tsx:7:export default function Index() {
+src/app/login.tsx:15:export default function Login() {
+src/app/profile.tsx:11:export default function Profile() {
+src/app/saved.tsx:16:export default function Saved() {
+src/app/scholarship/[id].tsx:11:export default function ScholarshipDetail() {
+src/app/scholarships.tsx:18:export default function Scholarships() {
+src/app/signup.tsx:80:export default function Signup() {
+src/app/welcome.tsx:10:export default function Welcome() {
+src/components/admin-nav.tsx:20:export function AdminNav() {
+src/components/admin-ui.tsx:11:export function AdminScreen({
+src/components/admin-ui.tsx:59:export type FieldDef = {
+src/components/admin-ui.tsx:114:export function CrudScreen({
+src/components/animated-icon.tsx:11:export function AnimatedSplashOverlay() {
+src/components/animated-icon.tsx:98:export function AnimatedIcon() {
+src/components/animated-icon.web.tsx:8:export function AnimatedSplashOverlay() {
+src/components/animated-icon.web.tsx:57:export function AnimatedIcon() {
+src/components/app-tabs.tsx:6:export default function AppTabs() {
+src/components/app-tabs.web.tsx:18:export default function AppTabs() {
+src/components/app-tabs.web.tsx:36:export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps) {
+src/components/app-tabs.web.tsx:50:export function CustomTabList(props: TabListProps) {
+src/components/bottom-nav.tsx:77:export function BottomNav() {
+src/components/external-link.tsx:7:export function ExternalLink({ href, ...rest }: Props) {
+src/components/floating-chatbot.tsx:42:export function FloatingChatbot() {
+src/components/hint-row.tsx:14:export function HintRow({ title = 'Try editing', hint = 'app/index.tsx' }: HintRowProps) {
+src/components/list-ui.tsx:6:export const card = {
+src/components/list-ui.tsx:17:export function SearchBar({
+src/components/list-ui.tsx:57:export function FilterChips<T extends string>({
+src/components/list-ui.tsx:99:export function Tag({ label, tone = 'blue' }: { label: string; tone?: 'blue' | 'red' | 'slate' }) {
+src/components/list-ui.tsx:119:export function EmptyState({ title, message }: { title: string; message: string }) {
+src/components/list-ui.tsx:141:export function SaveButton({ saved, onPress }: { saved: boolean; onPress: () => void }) {
+src/components/list-ui.tsx:158:export function ProgressBar({ value, color = '#2563EB' }: { value: number; color?: string }) {
+src/components/list-ui.tsx:173:export function Button({
+src/components/list-ui.tsx:221:export function BulletList({
+src/components/list-ui.tsx:245:export function MatchPrompt({ style }: { style?: object }) {
+src/components/themed-text.tsx:6:export type ThemedTextProps = TextProps & {
+src/components/themed-text.tsx:11:export function ThemedText({ style, type = 'default', themeColor, ...rest }: ThemedTextProps) {
+src/components/themed-view.tsx:6:export type ThemedViewProps = ViewProps & {
+src/components/themed-view.tsx:12:export function ThemedView({ style, lightColor, darkColor, type, ...otherProps }: ThemedViewProps) {
+src/components/ui/collapsible.tsx:11:export function Collapsible({ children, title }: PropsWithChildren & { title: string }) {
+src/components/web-badge.tsx:10:export function WebBadge() {
+src/constants/admin.ts:3:export const ADMIN_EMAILS: string[] = [
+src/constants/admin.ts:8:export const isAdminEmail = (email: string) => ADMIN_EMAILS.includes(email.trim().toLowerCase());
+src/constants/theme.ts:10:export const Colors = {
+src/constants/theme.ts:27:export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
+src/constants/theme.ts:29:export const Fonts = Platform.select({
+src/constants/theme.ts:54:export const Spacing = {
+src/constants/theme.ts:64:export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
+src/constants/theme.ts:65:export const MaxContentWidth = 800;
+src/context/app-state.tsx:15:export type StudentInfo = {
+src/context/app-state.tsx:26:export const EMPTY_STUDENT_INFO: StudentInfo = {
+src/context/app-state.tsx:34:export type AuthResult = {
+src/context/app-state.tsx:99:export function AppStateProvider({ children }: { children: ReactNode }) {
+src/context/app-state.tsx:255:export function useAppState(): AppState {
+src/context/catalog.tsx:12:export type CatalogKind = keyof typeof STORES;
+src/context/catalog.tsx:21:export function CatalogProvider({ children }: { children: ReactNode }) {
+src/context/catalog.tsx:44:export function useCatalog() {
+src/context/nav-visibility.tsx:31:export function NavVisibilityProvider({ children }: { children: ReactNode }) {
+src/context/nav-visibility.tsx:53:export function useNavVisibility(): NavVisibility {
+src/context/nav-visibility.tsx:69:export function useNavScroll() {
+src/data/colleges.ts:2:export type CollegeType = 'Public' | 'Private';
+src/data/colleges.ts:4:export type College = {
+src/data/colleges.ts:16:export const COLLEGES: College[] = [
+src/data/colleges.ts:63:export const formatTuition = (n: number) => (n <= 0 ? 'Free' : `₱${String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`);
+src/data/courses.ts:5:export type Course = {
+src/data/courses.ts:13:export const COURSES: Course[] = [
+src/data/courses.ts:93:export function collegesOffering(course: Course): College[] {
+src/data/courses.ts:97:export function courseForProgram(programName: string): Course | undefined {
+src/data/riasec.ts:1:export type RiasecCode = 'R' | 'I' | 'A' | 'S' | 'E' | 'C';
+src/data/riasec.ts:3:export type RiasecScore = { code: RiasecCode; label: string; score: number };
+src/data/riasec.ts:5:export const CODES: RiasecCode[] = ['R', 'I', 'A', 'S', 'E', 'C'];
+src/data/riasec.ts:7:export const RIASEC_META: Record<RiasecCode, { label: string; blurb: string }> = {
+src/data/riasec.ts:17:export const DEFAULT_PROFILE: RiasecScore[] = [
+src/data/riasec.ts:26:export function topCodes(profile: RiasecScore[], n = 3): RiasecCode[] {
+src/data/scholarships.ts:2:export type ScholarshipLevel = 'National' | 'Local';
+src/data/scholarships.ts:4:export type Scholarship = {
+src/data/scholarships.ts:16:export const SCHOLARSHIPS: Scholarship[] = [
+src/data/students.ts:2:export type Student = {
+src/data/students.ts:12:export const STUDENTS: Student[] = [
+src/hooks/use-color-scheme.ts:1:export { useColorScheme } from 'react-native';
+src/hooks/use-color-scheme.web.ts:7:export function useColorScheme() {
+src/hooks/use-theme.ts:9:export function useTheme() {
+src/lib/match.ts:15:export type CourseMatch = { course: Course; percent: number; reasons: RiasecCode[] };
+src/lib/match.ts:17:export type MatchResult = {
+src/lib/match.ts:24:export function analyzeInterests(text: string): MatchResult | null {
+src/lib/match.ts:57:export const INTEREST_SUGGESTIONS = [
+src/lib/supabase.ts:16:export const supabase = createClient(url, key, {
+src/styles/globalStyles.ts:3:export const globalStyles = StyleSheet.create({

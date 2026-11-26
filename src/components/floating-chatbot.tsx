@@ -2,15 +2,16 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useMemo, useRef, useState } from "react";
 import {
-    Animated,
-    KeyboardAvoidingView,
-    PanResponder,
-    Platform,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Animated,
+  KeyboardAvoidingView,
+  PanResponder,
+  Platform,
+  ScrollView,
+  type ScrollViewInstance,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 import { useAppState } from "@/context/app-state";
@@ -46,7 +47,7 @@ export function FloatingChatbot() {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const [messages, setMessages] = useState<Message[]>([GREETING]);
-  const scroller = useRef<ScrollView>(null);
+  const scroller = useRef<ScrollViewInstance>(null);
   const nextId = useRef(1);
 
   const pos = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
