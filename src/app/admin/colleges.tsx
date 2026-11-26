@@ -3,7 +3,7 @@ import { useCatalog } from '@/context/catalog';
 import { formatTuition, type College } from '@/data/colleges';
 
 export default function AdminColleges() {
-  const { colleges, upsert, remove } = useCatalog();
+  const { colleges, courses, upsert, remove } = useCatalog();
   return (
     <AdminScreen title="Colleges" subtitle="Manage">
       <CrudScreen
@@ -17,7 +17,7 @@ export default function AdminColleges() {
           { key: 'type', label: 'Type', kind: 'select', options: ['Public', 'Private'] },
           { key: 'tuition', label: 'Tuition per semester (₱, 0 = free)', kind: 'number' },
           { key: 'about', label: 'About', kind: 'multiline' },
-          { key: 'programs', label: 'Programs', kind: 'list' },
+          { key: 'programs', label: 'Programs offered', kind: 'multiselect', options: courses.map((c) => c.name) },
         ]}
         summary={(c) => {
           const x = c as unknown as College;

@@ -1,11 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useNavScroll } from '@/context/nav-visibility';
 import { BulletList, Button, EmptyState, ProgressBar, Tag, card } from '@/components/list-ui';
 import { useAppState } from '@/context/app-state';
+import { useNavScroll } from '@/context/nav-visibility';
 import { SCHOLARSHIPS } from '@/data/scholarships';
 
 export default function ScholarshipDetail() {
@@ -66,6 +66,19 @@ export default function ScholarshipDetail() {
             onPress={() => toggleReminder(s.id)}
           />
         </View>
+
+        {s.applyUrl ? (
+          <View>
+            <Button
+              icon="open-outline"
+              label="Apply / view posting"
+              onPress={() => void Linking.openURL(s.applyUrl as string).catch(() => {})}
+            />
+            <Text style={{ textAlign: 'center', color: '#94A3B8', fontSize: 11, marginTop: 6 }}>
+              Opens the grantor's page in your browser.
+            </Text>
+          </View>
+        ) : null}
 
         <View style={card}>
           <Text style={{ fontSize: 15, fontWeight: '700', color: '#0F172A', marginBottom: 8 }}>Benefit</Text>

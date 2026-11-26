@@ -3,7 +3,7 @@ import { useCatalog } from '@/context/catalog';
 import type { Scholarship } from '@/data/scholarships';
 
 export default function AdminScholarships() {
-  const { scholarships, upsert, remove } = useCatalog();
+  const { scholarships, courses, upsert, remove } = useCatalog();
   return (
     <AdminScreen title="Scholarships" subtitle="Manage">
       <CrudScreen
@@ -15,10 +15,12 @@ export default function AdminScholarships() {
           { key: 'grantor', label: 'Grantor', kind: 'text' },
           { key: 'level', label: 'Level', kind: 'select', options: ['National', 'Local'] },
           { key: 'benefit', label: 'Benefit (one line)', kind: 'text' },
-          { key: 'daysLeft', label: 'Days left to apply', kind: 'number' },
+          { key: 'deadline', label: 'Application deadline (YYYY-MM-DD)', kind: 'text' },
+          { key: 'applyUrl', label: 'Application link (where students apply, optional)', kind: 'text', optional: true },
           { key: 'about', label: 'About', kind: 'multiline' },
           { key: 'eligibility', label: 'Eligibility', kind: 'list' },
           { key: 'requirements', label: 'Requirements', kind: 'list' },
+          { key: 'courses', label: 'Courses covered (leave empty for any course)', kind: 'multiselect', options: courses.map((c) => c.name), optional: true },
         ]}
         summary={(s) => {
           const x = s as unknown as Scholarship;

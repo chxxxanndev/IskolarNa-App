@@ -7,10 +7,17 @@ export type Scholarship = {
   grantor: string;
   level: ScholarshipLevel;
   benefit: string;
+  /** Application deadline as yyyy-mm-dd (from the database). */
+  deadline?: string | null;
+  /** Worked out from `deadline` when the list loads. */
   daysLeft: number;
   about: string;
   eligibility: string[];
   requirements: string[];
+  /** Where students apply or read the posting (http/https link). Empty = none. */
+  applyUrl?: string;
+  /** Names of the courses it covers. Empty = open to any course. */
+  courses?: string[];
 };
 
 export const SCHOLARSHIPS: Scholarship[] = [
