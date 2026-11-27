@@ -10,6 +10,7 @@ export default function AdminScholarships() {
         title="Scholarships"
         noun="scholarship"
         items={scholarships}
+        picture={{ label: 'Logo or poster', aspect: [1, 1] }}
         fields={[
           { key: 'name', label: 'Name', kind: 'text' },
           { key: 'grantor', label: 'Grantor', kind: 'text' },

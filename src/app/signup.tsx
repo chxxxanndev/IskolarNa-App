@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { useState } from "react";
 
+import { Logo } from "@/components/ui/logo";
 import { useAppState, type StudentInfo } from "@/context/app-state";
 import {
   Alert,
@@ -150,46 +151,7 @@ export default function Signup() {
             marginBottom: 30,
           }}
         >
-          <View
-            style={{
-              width: 72,
-              height: 72,
-              borderRadius: 22,
-              backgroundColor: "#2563EB",
-              justifyContent: "center",
-              alignItems: "center",
-              marginBottom: 14,
-
-              shadowColor: "#2563EB",
-              shadowOffset: {
-                width: 0,
-                height: 6,
-              },
-              shadowOpacity: 0.25,
-              shadowRadius: 10,
-              elevation: 6,
-            }}
-          >
-            <Text
-              style={{
-                color: "#FFFFFF",
-                fontSize: 36,
-                fontWeight: "800",
-              }}
-            >
-              I
-            </Text>
-          </View>
-
-          <Text
-            style={{
-              fontSize: 28,
-              fontWeight: "800",
-              color: "#1E3A8A",
-            }}
-          >
-            IskolarNa
-          </Text>
+          <Logo size={120} />
 
           <Text
             style={{

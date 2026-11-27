@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Modal, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useNavScroll } from '@/context/nav-visibility';
 import { Button, EmptyState, SearchBar, Tag, card } from '@/components/list-ui';
+import { useNavScroll } from '@/context/nav-visibility';
+import { pickImage, type PickedImage } from '@/lib/pick-image';
 
 /** Shared page shell for every admin screen: back button, title, scrollable body. */
 export function AdminScreen({
@@ -122,6 +123,7 @@ export function CrudScreen({
   onSave,
   onDelete,
   allowAdd = true,
+  picture,
 }: {
   title: string;
   noun: string;
@@ -133,12 +135,16 @@ export function CrudScreen({
   onSave: (item: Row) => void;
   onDelete: (id: string) => void;
   allowAdd?: boolean;
+  /** Adds a photo picker to the form. The saved row gets `imageUrl` (and `imagePick` when a new photo was chosen). */
+  picture?: { label: string; aspect: [number, number] };
 }) {
   const [query, setQuery] = useState('');
   const [editing, setEditing] = useState<Row | 'new' | null>(null);
   const [values, setValues] = useState<FormValues>({});
   const [error, setError] = useState('');
   const [toDelete, setToDelete] = useState<Row | null>(null);
+  const [picked, setPicked] = useState<PickedImage | null>(null); // a new photo chosen in the form
+  const [removed, setRemoved] = useState(false); // the current photo was removed in the form
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -149,6 +155,8 @@ export function CrudScreen({
   const open = (row: Row | 'new') => {
     setValues(toForm(row === 'new' ? null : row, fields));
     setError('');
+    setPicked(null);
+    setRemoved(false);
     setEditing(row);
   };
 
@@ -157,9 +165,18 @@ export function CrudScreen({
     if (missing.length) return setError(`Please fill in: ${missing.map((m) => m.label).join(', ')}.`);
     const data = fromForm(values, fields);
     const id = editing === 'new' ? makeId(data) : (editing as Row).id;
-    onSave({ ...(editing === 'new' ? {} : (editing as Row)), ...data, id });
+    onSave({
+      ...(editing === 'new' ? {} : (editing as Row)),
+      ...data,
+      id,
+      ...(removed ? { imageUrl: '' } : {}),
+      ...(picked ? { imagePick: picked } : {}),
+    });
     setEditing(null);
   };
+
+  const currentPicture = editing && editing !== 'new' && !removed ? String((editing as Row).imageUrl ?? '') : '';
+  const shownPicture = picked ? `data:${picked.mimeType};base64,${picked.base64}` : currentPicture;
 
   return (
     <>
@@ -228,6 +245,44 @@ export function CrudScreen({
             </View>
             <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 30 }} keyboardShouldPersistTaps="handled">
               <View style={{ ...card, padding: 22 }}>
+                {picture && (
+                  <View style={{ marginBottom: 18 }}>
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 8 }}>{picture.label}</Text>
+                    {shownPicture ? (
+                      <Image
+                        source={{ uri: shownPicture }}
+                        style={{ width: '100%', aspectRatio: picture.aspect[0] / picture.aspect[1], borderRadius: 14, backgroundColor: '#E2E8F0', marginBottom: 10 }}
+                      />
+                    ) : null}
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                      <Button
+                        flex
+                        variant="secondary"
+                        icon="image-outline"
+                        label={shownPicture ? 'Change photo' : 'Choose photo'}
+                        onPress={async () => {
+                          const p = await pickImage(picture.aspect);
+                          if (p) {
+                            setPicked(p);
+                            setRemoved(false);
+                          }
+                        }}
+                      />
+                      {shownPicture ? (
+                        <Button
+                          flex
+                          variant="danger"
+                          icon="trash-outline"
+                          label="Remove"
+                          onPress={() => {
+                            setPicked(null);
+                            setRemoved(true);
+                          }}
+                        />
+                      ) : null}
+                    </View>
+                  </View>
+                )}
                 {fields.map((f) => (
                   <View key={f.key} style={{ marginBottom: 18 }}>
                     <Text style={{ fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 8 }}>{f.label}</Text>

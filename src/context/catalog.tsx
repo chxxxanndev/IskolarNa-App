@@ -16,6 +16,7 @@ import { useAppState } from '@/context/app-state';
 import type { College } from '@/data/colleges';
 import type { Course } from '@/data/courses';
 import type { Scholarship } from '@/data/scholarships';
+import type { PickedImage } from '@/lib/pick-image';
 
 import { COLLEGES } from '@/data/colleges';
 import { COURSES } from '@/data/courses';
@@ -79,12 +80,12 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
         item = saved.data;
       }
       if (kind === 'colleges') {
-        const saved = await saveCollege(item as unknown as College);
+        const saved = await saveCollege(item as unknown as College, (item as { imagePick?: PickedImage }).imagePick);
         if (saved.error !== null) return Alert.alert('Could not save', saved.error);
         item = saved.data;
       }
       if (kind === 'scholarships') {
-        const saved = await saveScholarship(item as unknown as Scholarship);
+        const saved = await saveScholarship(item as unknown as Scholarship, (item as { imagePick?: PickedImage }).imagePick);
         if (saved.error !== null) return Alert.alert('Could not save', saved.error);
         item = saved.data;
       }

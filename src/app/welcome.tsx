@@ -1,9 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/list-ui';
+import { Logo } from '@/components/ui/logo';
 import { useAppState } from '@/context/app-state';
 
 /** Shown once right after sign up. Both buttons lead into the app; Match is just optional. */
@@ -19,19 +19,8 @@ export default function Welcome() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
       <View style={{ flex: 1, paddingHorizontal: 24, justifyContent: 'center' }}>
-        <View
-          style={{
-            width: 72,
-            height: 72,
-            borderRadius: 22,
-            backgroundColor: '#2563EB',
-            justifyContent: 'center',
-            alignItems: 'center',
-            alignSelf: 'center',
-            marginBottom: 22,
-          }}
-        >
-          <Ionicons name="compass" size={36} color="#FFFFFF" />
+        <View style={{ alignSelf: 'center', marginBottom: 14 }}>
+          <Logo size={120} />
         </View>
 
         <Text style={{ fontSize: 26, fontWeight: '800', color: '#1E3A8A', textAlign: 'center', letterSpacing: -0.5 }}>

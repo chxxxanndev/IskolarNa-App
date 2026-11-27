@@ -1,9 +1,11 @@
 import { supabase } from "@/api/client";
 import { friendlyError, type ApiResult } from "@/api/errors";
+import { uploadImage } from "@/api/images";
 import type { College } from "@/data/colleges";
 import type { Course } from "@/data/courses";
 import type { RiasecCode } from "@/data/riasec";
 import type { Scholarship } from "@/data/scholarships";
+import type { PickedImage } from "@/lib/pick-image";
 
 // Courses table: id (text), name, codes[], about, careers[]. Any text column can be empty in the database.
 const COURSE_COLUMNS = "id, name, codes, about, careers";
@@ -64,7 +66,7 @@ export async function deleteCourse(id: string): Promise<ApiResult<null>> {
 // are turned back into a list of course names so the screens keep reading `college.programs`.
 // ---------------------------------------------------------------------------------------------
 const COLLEGE_COLUMNS =
-  "id, name, short, city, type, tuition, about, college_programs(courses(name))";
+  "id, name, short, city, type, tuition, about, image_url, college_programs(courses(name))";
 
 type CollegeRow = {
   id: string;
@@ -74,6 +76,7 @@ type CollegeRow = {
   type: string;
   tuition: number;
   about: string | null;
+  image_url: string | null;
   college_programs: { courses: { name: string } | null }[] | null;
 };
 
@@ -91,6 +94,7 @@ function toCollege(row: CollegeRow): College {
     tuition: row.tuition,
     about: row.about ?? "",
     programs,
+    imageUrl: row.image_url ?? "",
   };
 }
 
@@ -122,6 +126,14 @@ async function syncCourseLinks(
   return pruned.error ? friendlyError(pruned.error.message) : null;
 }
 
+/** Uploads a college photo or scholarship logo and saves its link on the row. Returns an error message, or null. */
+async function savePicture(table: "colleges" | "scholarships", id: string, picked: PickedImage): Promise<string | null> {
+  const uploaded = await uploadImage("catalog-images", `${table}/${id}`, picked);
+  if (uploaded.error !== null) return uploaded.error;
+  const { error } = await supabase.from(table).update({ image_url: uploaded.data }).eq("id", id);
+  return error ? friendlyError(error.message) : null;
+}
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Every college with the courses it offers, A to Z. */
@@ -138,7 +150,7 @@ export async function fetchColleges(): Promise<ApiResult<College[]>> {
  * Adds the college, or updates it when its id is already in the database (new colleges get their
  * id from the database). Then makes the offered programs match `college.programs` (course names).
  */
-export async function saveCollege(college: College): Promise<ApiResult<College>> {
+export async function saveCollege(college: College, picked?: PickedImage): Promise<ApiResult<College>> {
   const fields = {
     name: college.name,
     short: college.short,
@@ -146,6 +158,7 @@ export async function saveCollege(college: College): Promise<ApiResult<College>>
     type: college.type,
     tuition: college.tuition,
     about: college.about,
+    image_url: college.imageUrl?.trim() || null, // '' (removed) clears it
   };
   const saved = await supabase
     .from("colleges")
@@ -157,6 +170,10 @@ export async function saveCollege(college: College): Promise<ApiResult<College>>
 
   const linkError = await syncCourseLinks("college_programs", "college_id", collegeId, college.programs);
   if (linkError) return { data: null, error: linkError };
+  if (picked) {
+    const pictureError = await savePicture("colleges", collegeId, picked);
+    if (pictureError) return { data: null, error: pictureError };
+  }
 
   const fresh = await supabase
     .from("colleges")
@@ -179,7 +196,7 @@ export async function deleteCollege(id: string): Promise<ApiResult<null>> {
 // (no rows = open to any course).
 // ---------------------------------------------------------------------------------------------
 const SCHOLARSHIP_COLUMNS =
-  "id, name, grantor, level, benefit, deadline, apply_url, about, eligibility, requirements, scholarship_courses(courses(name))";
+  "id, name, grantor, level, benefit, deadline, apply_url, image_url, about, eligibility, requirements, scholarship_courses(courses(name))";
 
 type ScholarshipRow = {
   id: string;
@@ -189,6 +206,7 @@ type ScholarshipRow = {
   benefit: string | null;
   deadline: string | null;
   apply_url: string | null;
+  image_url: string | null;
   about: string | null;
   eligibility: string[] | null;
   requirements: string[] | null;
@@ -218,6 +236,7 @@ function toScholarship(row: ScholarshipRow): Scholarship {
     deadline: row.deadline,
     daysLeft: daysUntil(row.deadline),
     applyUrl: row.apply_url ?? "",
+    imageUrl: row.image_url ?? "",
     about: row.about ?? "",
     eligibility: row.eligibility ?? [],
     requirements: row.requirements ?? [],
@@ -236,7 +255,7 @@ export async function fetchScholarships(): Promise<ApiResult<Scholarship[]>> {
 }
 
 /** Adds the scholarship, or updates it when its id is already in the database. */
-export async function saveScholarship(s: Scholarship): Promise<ApiResult<Scholarship>> {
+export async function saveScholarship(s: Scholarship, picked?: PickedImage): Promise<ApiResult<Scholarship>> {
   const deadline = (s.deadline ?? "").trim();
   const real = /^\d{4}-\d{2}-\d{2}$/.test(deadline) && !isNaN(new Date(deadline).getTime());
   if (!real) return { data: null, error: "Enter the deadline as year-month-day, like 2026-12-31." };
@@ -252,6 +271,7 @@ export async function saveScholarship(s: Scholarship): Promise<ApiResult<Scholar
     benefit: s.benefit,
     deadline,
     apply_url: applyUrl || null,
+    image_url: s.imageUrl?.trim() || null, // '' (removed) clears it
     about: s.about,
     eligibility: s.eligibility,
     requirements: s.requirements,
@@ -266,6 +286,10 @@ export async function saveScholarship(s: Scholarship): Promise<ApiResult<Scholar
 
   const linkError = await syncCourseLinks("scholarship_courses", "scholarship_id", scholarshipId, s.courses ?? []);
   if (linkError) return { data: null, error: linkError };
+  if (picked) {
+    const pictureError = await savePicture("scholarships", scholarshipId, picked);
+    if (pictureError) return { data: null, error: pictureError };
+  }
 
   const fresh = await supabase
     .from("scholarships")

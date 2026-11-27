@@ -10,6 +10,7 @@ export default function AdminColleges() {
         title="Colleges"
         noun="college"
         items={colleges}
+        picture={{ label: 'School or campus photo', aspect: [16, 9] }}
         fields={[
           { key: 'name', label: 'Full name', kind: 'text' },
           { key: 'short', label: 'Short name', kind: 'text' },

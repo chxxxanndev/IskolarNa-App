@@ -11,6 +11,8 @@ export type College = {
   tuition: number;
   about: string;
   programs: string[];
+  /** Photo of the school or campus (link), if an admin uploaded one. */
+  imageUrl?: string;
 };
 
 export const COLLEGES: College[] = [

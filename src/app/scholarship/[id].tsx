@@ -4,6 +4,7 @@ import { Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BulletList, Button, EmptyState, ProgressBar, Tag, card } from '@/components/list-ui';
+import { PhotoTile } from '@/components/ui/photo-tile';
 import { useAppState } from '@/context/app-state';
 import { useNavScroll } from '@/context/nav-visibility';
 import { SCHOLARSHIPS } from '@/data/scholarships';
@@ -29,19 +30,9 @@ export default function ScholarshipDetail() {
       <Stack.Screen options={{ title: s.grantor }} />
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: nav.bottomPad, gap: 16 }} {...nav.scrollProps} showsVerticalScrollIndicator={false}>
         <View style={{ ...card, alignItems: 'center', paddingVertical: 24 }}>
-          <View
-            style={{
-              width: 72,
-              height: 72,
-              borderRadius: 20,
-              backgroundColor: '#EFF6FF',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginBottom: 14,
-            }}
-          >
+          <PhotoTile uri={s.imageUrl} size={72} radius={20} backgroundColor="#EFF6FF" style={{ marginBottom: 14 }}>
             <Ionicons name="ribbon-outline" size={34} color="#2563EB" />
-          </View>
+          </PhotoTile>
           <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F172A', textAlign: 'center' }}>{s.name}</Text>
           <Text style={{ fontSize: 13, color: '#64748B', marginTop: 6 }}>{s.grantor}</Text>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>

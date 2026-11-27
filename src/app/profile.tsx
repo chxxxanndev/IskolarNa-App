@@ -1,16 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useNavScroll } from '@/context/nav-visibility';
 import { Button, MatchPrompt, ProgressBar, card } from '@/components/list-ui';
+import { Avatar } from '@/components/ui/avatar';
 import { useAppState } from '@/context/app-state';
+import { useNavScroll } from '@/context/nav-visibility';
 import { RIASEC_META, topCodes } from '@/data/riasec';
+import { pickImage } from '@/lib/pick-image';
 
 export default function Profile() {
   const nav = useNavScroll();
-  const { userName, userEmail, studentInfo, profile, hasMatched, savedColleges, savedScholarships, signOut } = useAppState();
+  const { userName, userEmail, avatarUrl, setAvatar, studentInfo, profile, hasMatched, savedColleges, savedScholarships, signOut } = useAppState();
   const NEEDS: Record<string, string> = { yes: 'Needs a scholarship', maybe: 'Not sure about scholarships', no: 'No scholarship needed' };
   const about = [
     studentInfo.level,
@@ -19,24 +22,33 @@ export default function Profile() {
     NEEDS[studentInfo.needsScholarship],
   ].filter(Boolean) as string[];
   const top = topCodes(profile);
+  const [uploading, setUploading] = useState(false);
+
+  const changePicture = async () => {
+    const picked = await pickImage([1, 1]);
+    if (!picked) return;
+    setUploading(true);
+    const error = await setAvatar(picked);
+    setUploading(false);
+    if (error) Alert.alert('Could not update picture', error);
+  };
 
   return (
     <SafeAreaView edges={['left', 'right']} style={{ flex: 1, backgroundColor: '#F8FAFF' }}>
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: nav.bottomPad, gap: 16 }} {...nav.scrollProps} showsVerticalScrollIndicator={false}>
         <View style={{ ...card, alignItems: 'center', paddingVertical: 24 }}>
-          <View
-            style={{
-              width: 72,
-              height: 72,
-              borderRadius: 22,
-              backgroundColor: '#2563EB',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginBottom: 12,
-            }}
+          <TouchableOpacity
+            activeOpacity={0.8}
+            disabled={uploading}
+            onPress={changePicture}
+            accessibilityLabel="Change profile picture"
+            style={{ marginBottom: 12, opacity: uploading ? 0.5 : 1 }}
           >
-            <Text style={{ color: '#FFFFFF', fontSize: 30, fontWeight: '800' }}>{userName.charAt(0).toUpperCase()}</Text>
-          </View>
+            <Avatar uri={avatarUrl} name={userName} size={88} radius={26} />
+            <View style={{ position: 'absolute', right: -4, bottom: -4, width: 28, height: 28, borderRadius: 14, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#DBE3F0', justifyContent: 'center', alignItems: 'center' }}>
+              <Ionicons name={uploading ? 'time-outline' : 'camera-outline'} size={16} color="#2563EB" />
+            </View>
+          </TouchableOpacity>
           <Text style={{ fontSize: 20, fontWeight: '800', color: '#0F172A' }}>{userName}</Text>
           {userEmail ? <Text style={{ fontSize: 13, color: '#64748B', marginTop: 4 }}>{userEmail}</Text> : null}
           {about.length > 0 && (

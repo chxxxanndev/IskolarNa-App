@@ -18,7 +18,7 @@ import {
   signUpWithEmail,
 } from "@/api/auth";
 import type { ApiResult } from "@/api/errors";
-import { getProfile } from "@/api/profiles";
+import { getProfile, saveAvatar } from "@/api/profiles";
 import {
   fetchStudentData,
   saveRiasec,
@@ -28,6 +28,7 @@ import {
   setSavedScholarship,
 } from "@/api/student-data";
 import { DEFAULT_PROFILE, type RiasecScore } from "@/data/riasec";
+import type { PickedImage } from "@/lib/pick-image";
 
 export type StudentInfo = {
   /** 'Grade 11' | 'Grade 12' | 'Graduated' | '' (not answered) */
@@ -61,6 +62,10 @@ type AppState = {
   signedIn: boolean;
   userName: string;
   userEmail: string;
+  /** link to the student's profile picture, or '' when they have none */
+  avatarUrl: string;
+  /** Uploads a new profile picture from the phone. Returns an error message, or null when it worked. */
+  setAvatar: (image: PickedImage) => Promise<string | null>;
   /** comes from profiles.role in Supabase */
   isAdmin: boolean;
   signIn: (email: string, password: string) => Promise<AuthResult>;
@@ -103,6 +108,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [signedIn, setSignedIn] = useState(false);
   const [userName, setUserName] = useState("Student");
   const [userEmail, setUserEmail] = useState("");
+  const [userId, setUserId] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [studentInfo, setStudentInfo] =
     useState<StudentInfo>(EMPTY_STUDENT_INFO);
@@ -127,6 +134,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     const role = data?.role === "admin" ? "admin" : "student";
     setUserName(fullName.trim().split(" ")[0] || "Student");
     setUserEmail(user.email ?? "");
+    setUserId(user.id);
+    setAvatarUrl(data?.avatar_url ?? "");
     setIsAdmin(role === "admin");
     setStudentInfo({
       level: data?.level ?? "",
@@ -163,6 +172,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setSignedIn(false);
     setUserName("Student");
     setUserEmail("");
+    setUserId("");
+    setAvatarUrl("");
     setIsAdmin(false);
     setStudentInfo(EMPTY_STUDENT_INFO);
     setProfileState(DEFAULT_PROFILE);
@@ -226,6 +237,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     signOut: () => {
       resetLocal();
       void signOutLocal();
+    },
+
+    avatarUrl,
+    setAvatar: async (image) => {
+      const result = await saveAvatar(userId, image);
+      if (result.error !== null) return result.error;
+      setAvatarUrl(result.data);
+      return null;
     },
 
     studentInfo,

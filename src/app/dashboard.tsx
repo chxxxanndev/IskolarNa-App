@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { FloatingChatbot } from "@/components/floating-chatbot";
 import { MatchPrompt, ProgressBar, Tag, card } from "@/components/list-ui";
+import { Avatar } from "@/components/ui/avatar";
 import { useAppState } from "@/context/app-state";
 import { useNavScroll } from "@/context/nav-visibility";
 import { COLLEGES } from "@/data/colleges";
@@ -48,7 +49,7 @@ function SectionHeader({
 
 export default function Dashboard() {
   const nav = useNavScroll();
-  const { userName, profile, hasMatched, savedColleges, savedScholarships } =
+  const { userName, avatarUrl, profile, hasMatched, savedColleges, savedScholarships } =
     useAppState();
   const savedCount = savedColleges.length + savedScholarships.length;
   const closingSoon = [...SCHOLARSHIPS]
@@ -151,20 +152,8 @@ export default function Dashboard() {
             <TouchableOpacity
               onPress={() => router.push("/profile")}
               accessibilityLabel="My profile"
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 14,
-                backgroundColor: "#2563EB",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
             >
-              <Text
-                style={{ color: "#FFFFFF", fontSize: 18, fontWeight: "800" }}
-              >
-                {userName.charAt(0).toUpperCase()}
-              </Text>
+              <Avatar uri={avatarUrl} name={userName} size={44} radius={14} />
             </TouchableOpacity>
           </View>
         </View>

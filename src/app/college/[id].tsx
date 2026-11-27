@@ -1,11 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useNavScroll } from '@/context/nav-visibility';
-import { Button, EmptyState, Tag, card } from '@/components/list-ui';
+import { Button, card, EmptyState, Tag } from '@/components/list-ui';
 import { useAppState } from '@/context/app-state';
+import { useNavScroll } from '@/context/nav-visibility';
 import { COLLEGES } from '@/data/colleges';
 import { courseForProgram } from '@/data/courses';
 import { RIASEC_META } from '@/data/riasec';
@@ -29,19 +29,26 @@ export default function CollegeDetail() {
       <Stack.Screen options={{ title: college.short }} />
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: nav.bottomPad, gap: 16 }} {...nav.scrollProps} showsVerticalScrollIndicator={false}>
         <View style={{ ...card, alignItems: 'center', paddingVertical: 24 }}>
-          <View
-            style={{
-              width: 72,
-              height: 72,
-              borderRadius: 20,
-              backgroundColor: '#1E3A8A',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginBottom: 14,
-            }}
-          >
-            <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '800' }}>{college.short}</Text>
-          </View>
+          {college.imageUrl ? (
+            <Image
+              source={{ uri: college.imageUrl }}
+              style={{ width: '100%', aspectRatio: 16 / 9, borderRadius: 16, backgroundColor: '#E2E8F0', marginBottom: 14 }}
+            />
+          ) : (
+            <View
+              style={{
+                width: 72,
+                height: 72,
+                borderRadius: 20,
+                backgroundColor: '#1E3A8A',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginBottom: 14,
+              }}
+            >
+              <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '800' }}>{college.short}</Text>
+            </View>
+          )}
           <Text style={{ fontSize: 18, fontWeight: '800', color: '#0F172A', textAlign: 'center' }}>{college.name}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 }}>
             <Ionicons name="location-outline" size={14} color="#64748B" />

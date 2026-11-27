@@ -4,9 +4,10 @@ import { useMemo, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useNavScroll } from '@/context/nav-visibility';
-import { useAppState } from '@/context/app-state';
 import { EmptyState, FilterChips, SaveButton, SearchBar, Tag, card } from '@/components/list-ui';
+import { PhotoTile } from '@/components/ui/photo-tile';
+import { useAppState } from '@/context/app-state';
+import { useNavScroll } from '@/context/nav-visibility';
 import { COLLEGES, type College } from '@/data/colleges';
 
 const FILTERS = ['All', 'Public', 'Private', 'Saved'] as const;
@@ -43,19 +44,9 @@ export default function Colleges() {
         style={{ ...card, marginBottom: 14 }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <View
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 14,
-              backgroundColor: '#1E3A8A',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginRight: 12,
-            }}
-          >
+          <PhotoTile uri={item.imageUrl} size={48} radius={14} backgroundColor="#1E3A8A" style={{ marginRight: 12 }}>
             <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '800' }}>{item.short}</Text>
-          </View>
+          </PhotoTile>
 
           <View style={{ flex: 1, paddingRight: 8 }}>
             <Text style={{ fontSize: 15, fontWeight: '700', color: '#0F172A' }}>{item.name}</Text>

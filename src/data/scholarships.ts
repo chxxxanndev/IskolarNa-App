@@ -16,6 +16,8 @@ export type Scholarship = {
   requirements: string[];
   /** Where students apply or read the posting (http/https link). Empty = none. */
   applyUrl?: string;
+  /** Logo or poster (link), if an admin uploaded one. */
+  imageUrl?: string;
   /** Names of the courses it covers. Empty = open to any course. */
   courses?: string[];
 };

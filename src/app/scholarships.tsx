@@ -4,9 +4,10 @@ import { useMemo, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useNavScroll } from '@/context/nav-visibility';
-import { useAppState } from '@/context/app-state';
 import { EmptyState, FilterChips, SaveButton, SearchBar, Tag, card } from '@/components/list-ui';
+import { PhotoTile } from '@/components/ui/photo-tile';
+import { useAppState } from '@/context/app-state';
+import { useNavScroll } from '@/context/nav-visibility';
 import { SCHOLARSHIPS, type Scholarship } from '@/data/scholarships';
 
 const FILTERS = ['All', 'Closing soon', 'National', 'Local', 'Saved'] as const;
@@ -47,19 +48,9 @@ export default function Scholarships() {
         style={{ ...card, marginBottom: 14 }}
       >
         <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-          <View
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 14,
-              backgroundColor: '#EFF6FF',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginRight: 12,
-            }}
-          >
+          <PhotoTile uri={item.imageUrl} size={48} radius={14} backgroundColor="#EFF6FF" style={{ marginRight: 12 }}>
             <Ionicons name="ribbon-outline" size={24} color="#2563EB" />
-          </View>
+          </PhotoTile>
 
           <View style={{ flex: 1, paddingRight: 8 }}>
             <Text style={{ fontSize: 15, fontWeight: '700', color: '#0F172A' }}>{item.name}</Text>

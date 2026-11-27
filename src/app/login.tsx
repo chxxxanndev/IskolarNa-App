@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { useState } from "react";
 
+import { Logo } from "@/components/ui/logo";
 import { useAppState } from "@/context/app-state";
 import {
   KeyboardAvoidingView,
@@ -57,49 +58,7 @@ export default function Login() {
             marginBottom: 38,
           }}
         >
-          {/* Logo */}
-          <View
-            style={{
-              width: 78,
-              height: 78,
-              borderRadius: 24,
-              backgroundColor: "#2563EB",
-              justifyContent: "center",
-              alignItems: "center",
-              marginBottom: 16,
-
-              shadowColor: "#2563EB",
-              shadowOffset: {
-                width: 0,
-                height: 6,
-              },
-              shadowOpacity: 0.25,
-              shadowRadius: 10,
-              elevation: 6,
-            }}
-          >
-            <Text
-              style={{
-                color: "#FFFFFF",
-                fontSize: 38,
-                fontWeight: "800",
-              }}
-            >
-              I
-            </Text>
-          </View>
-
-          {/* App Name */}
-          <Text
-            style={{
-              fontSize: 30,
-              fontWeight: "800",
-              color: "#1E3A8A",
-              letterSpacing: -0.5,
-            }}
-          >
-            IskolarNa
-          </Text>
+          <Logo size={150} />
 
           <Text
             style={{
